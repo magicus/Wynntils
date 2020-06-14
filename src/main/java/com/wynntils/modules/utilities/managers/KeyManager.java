@@ -41,19 +41,14 @@ public class KeyManager {
 
         checkForUpdatesKey = CoreModule.getModule().registerKeyBinding("Check for Updates", Keyboard.KEY_L, "Wynntils", true, WebManager::checkForUpdates);
 
-        CoreModule.getModule().registerKeyBinding("Open Settings", Keyboard.KEY_P, "Wynntils", true, () -> {
-            ModCore.mc().displayGuiScreen(SettingsUI.getInstance(ModCore.mc().currentScreen));
-        });
+        CoreModule.getModule().registerKeyBinding("Open Settings", Keyboard.KEY_P, "Wynntils", true, () ->
+                ModCore.mc().displayGuiScreen(SettingsUI.getInstance(ModCore.mc().currentScreen)));
 
         lockInventoryKey = UtilitiesModule.getModule().registerKeyBinding("Lock Slot", Keyboard.KEY_H, "Wynntils", true, () -> {});
 
-        zoomInKey = CoreModule.getModule().registerKeyBinding("Zoom In", Keyboard.KEY_EQUALS, "Wynntils", false, () -> {
-            MiniMapOverlay.zoomBy(+1);
-        });
+        zoomInKey = CoreModule.getModule().registerKeyBinding("Zoom In", Keyboard.KEY_EQUALS, "Wynntils", false, () -> MiniMapOverlay.zoomBy(+1));
 
-        zoomOutKey = CoreModule.getModule().registerKeyBinding("Zoom Out", Keyboard.KEY_MINUS, "Wynntils", false, () -> {
-            MiniMapOverlay.zoomBy(-1);
-        });
+        zoomOutKey = CoreModule.getModule().registerKeyBinding("Zoom Out", Keyboard.KEY_MINUS, "Wynntils", false, () -> MiniMapOverlay.zoomBy(-1));
 
         CoreModule.getModule().registerKeyBinding("Cast First Spell", Keyboard.KEY_Z, "Wynntils", true, QuickCastManager::castFirstSpell);
         CoreModule.getModule().registerKeyBinding("Cast Second Spell", Keyboard.KEY_X, "Wynntils", true, QuickCastManager::castSecondSpell);

@@ -66,6 +66,8 @@ import static com.wynntils.core.framework.instances.PlayerInfo.getPlayerInfo;
 
 public class ClientEvents implements Listener {
 
+    private GuiScreen lastScreen = null;
+
     /**
      * This replace these GUIS into a "provided" format to make it more modular
      *
@@ -112,7 +114,7 @@ public class ClientEvents implements Listener {
         }
     }
 
-    private static final Pattern GATHERING_STATUS = Pattern.compile("\\[\\+([0-9]*) [Ⓚ|Ⓒ|Ⓑ|Ⓙ] (.*?) XP\\] \\[([0-9]*)%\\]");
+    private static final Pattern GATHERING_STATUS = Pattern.compile("\\[\\+([0-9]*) [ⓀⒸⒷⒿ] (.*?) XP\\] \\[([0-9]*)%\\]");
     private static final Pattern GATHERING_RESOURCE = Pattern.compile("\\[\\+([0-9]+) (.+)\\]");
 
     // bake status
@@ -141,15 +143,15 @@ public class ClientEvents implements Listener {
             if (m.matches()) { // first, gathering status
                 if (bakeStatus == null || bakeStatus.isInvalid()) bakeStatus = new GatheringBake();
 
-                bakeStatus.setXpAmount(Double.valueOf(m.group(1)));
+                bakeStatus.setXpAmount(Double.parseDouble(m.group(1)));
                 bakeStatus.setType(ProfessionType.valueOf(m.group(2).toUpperCase()));
-                bakeStatus.setXpPercentage(Double.valueOf(m.group(3)));
+                bakeStatus.setXpPercentage(Double.parseDouble(m.group(3)));
             } else if ((m = GATHERING_RESOURCE.matcher(value)).matches()) { // second, gathering resource
                 if (bakeStatus == null || bakeStatus.isInvalid()) bakeStatus = new GatheringBake();
 
                 String resourceType = m.group(2).contains(" ") ? m.group(2).split(" ")[0] : m.group(2);
 
-                bakeStatus.setMaterialAmount(Integer.valueOf(m.group(1)));
+                bakeStatus.setMaterialAmount(Integer.parseInt(m.group(1)));
                 bakeStatus.setMaterial(GatheringMaterial.valueOf(resourceType.toUpperCase()));
             }
 
@@ -193,8 +195,6 @@ public class ClientEvents implements Listener {
         }
     }
 
-    long lastPosRequest;
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void updateActionBar(PacketEvent<SPacketChat> e) {
         if (!Reference.onServer || e.getPacket().getType() != ChatType.GAME_INFO) return;
@@ -220,8 +220,6 @@ public class ClientEvents implements Listener {
         PingManager.calculatePing();
         PacketQueue.proccessQueue();
     }
-
-    GuiScreen lastScreen = null;
 
     /**
      *  Register the new Main Menu buttons

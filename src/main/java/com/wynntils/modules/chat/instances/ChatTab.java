@@ -16,23 +16,24 @@ import java.util.regex.Pattern;
 public class ChatTab implements Comparable<ChatTab> {
 
     // stored variables
-    String name, autoCommand;
-    int orderNb;
-    boolean lowPriority;
-    Pattern regexFinder;
-    HashMap<String, Boolean> regexSettings;
+    private String name;
+    private String autoCommand;
+    private int orderNb;
+    private boolean lowPriority;
+    private Pattern regexFinder;
+    private HashMap<String, Boolean> regexSettings;
 
     // not stored ones
-    transient List<ChatLine> currentMessages = new ArrayList<>();
-    transient List<String> sentMessages = new ArrayList<>();
-    transient Pair<Integer, Integer> currentXAxis = new Pair<>(0, 0);
-    transient boolean hasMentions = false;
-    transient boolean hasNewMessages = false;
+    private transient List<ChatLine> currentMessages = new ArrayList<>();
+    private transient List<String> sentMessages = new ArrayList<>();
+    private transient Pair<Integer, Integer> currentXAxis = new Pair<>(0, 0);
+    private transient boolean hasMentions = false;
+    private transient boolean hasNewMessages = false;
 
     // spam filter
-    transient ITextComponent lastMessage = null;
-    transient int lastAmount = 2;
-    transient int groupId = 0;
+    private transient ITextComponent lastMessage = null;
+    private transient int lastAmount = 2;
+    private transient int groupId = 0;
 
     @SuppressWarnings("unused")
     private ChatTab() {}

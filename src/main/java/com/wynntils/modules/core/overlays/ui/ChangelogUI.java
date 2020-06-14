@@ -164,7 +164,7 @@ public class ChangelogUI extends GuiScreen {
     }
 
     @Override
-    protected void keyTyped(char charType, int keyCode) throws IOException {
+    protected void keyTyped(char charType, int keyCode) {
         if (keyCode == 1) {  // ESC
             Minecraft.getMinecraft().displayGuiScreen(previousGui);
             if (Minecraft.getMinecraft().currentScreen == null) mc.setIngameFocus();

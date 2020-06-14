@@ -132,8 +132,8 @@ public class ObjectivesOverlay extends Overlay {
     }
 
     public static void refreshAllTimestamps() {
-        for (int i = 0; i < objectives.length; i++) {
-            if (objectives[i] != null) objectives[i].refreshTimestamp();
+        for (Objective objective : objectives) {
+            if (objective != null) objective.refreshTimestamp();
         }
     }
 

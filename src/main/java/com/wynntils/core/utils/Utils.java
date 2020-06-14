@@ -96,7 +96,7 @@ public class Utils {
      * @param sourceFile The source file
      * @param destFile Where it will be
      */
-    public static void copyFile(File sourceFile, File destFile) throws IOException {
+    public static void copyFile(File sourceFile, File destFile) {
         if (destFile == null || !destFile.exists()) {
             destFile = new File(new File(sourceFile.getParentFile(), "mods"), "Wynntils.jar");
             sourceFile.renameTo(destFile);

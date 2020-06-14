@@ -329,7 +329,7 @@ public class DiscoveriesPage extends QuestBookPage {
         });
 
         List<DiscoveryProfile> allDiscoveriesSearch = new ArrayList<>(WebManager.getDiscoveries());
-        
+
         discoverySearch.addAll(allDiscoveriesSearch.stream()
             .filter(c -> {
                 if (!QuestBookConfig.INSTANCE.showAllDiscoveries) {
@@ -346,11 +346,9 @@ public class DiscoveriesPage extends QuestBookPage {
                     }
                 }
 
-                if (QuestManager.getCurrentDiscoveries().stream().anyMatch(foundDiscovery -> {
-                    return TextFormatting.getTextWithoutFormattingCodes(foundDiscovery.getName()).equals(c.getName())
+                if (QuestManager.getCurrentDiscoveries().stream().anyMatch(foundDiscovery -> TextFormatting.getTextWithoutFormattingCodes(foundDiscovery.getName()).equals(c.getName())
                         && foundDiscovery.getMinLevel() == c.getLevel()
-                        && foundDiscovery.getType().name().toLowerCase(Locale.ROOT).equals(c.getType());
-                })) {
+                    && foundDiscovery.getType().name().toLowerCase(Locale.ROOT).equals(c.getType()))) {
                     return false;
                 }
 

@@ -127,10 +127,8 @@ public class LootRunPath {
             LootRunPathLocation location = new LootRunPathLocation(rawLocations.get(i), currentColor);
             locations.add(location);
         }
-        List<LootRunPath.LootRunPathLocation> locationsSample = locations;
         List<Vector3d> derivative = sample.b;
-
-        return new Pair<>(locationsSample, derivative);
+        return new Pair<>(locations, derivative);
     }
 
     private Pair<Long2ObjectMap<List<List<LootRunPath.LootRunPathLocation>>>, Long2ObjectMap<List<List<Vector3d>>>> generatePointsByChunk(List<LootRunPathLocation> locationsList, List<Vector3d> derivativesList) {
@@ -243,7 +241,7 @@ public class LootRunPath {
         return getPoints().isEmpty();
     }
 
-    public class LootRunPathLocation {
+    public static class LootRunPathLocation {
         private Location location;
         private CustomColor color;
 

@@ -101,17 +101,13 @@ public class MapApiIcon extends MapTextureIcon {
             HashMap<String, Boolean> defaulted = MapConfig.resetMapIcons(false);
             for (Map.Entry<String, Boolean> e : defaulted.entrySet()) {
                 String icon = e.getKey();
-                if (MapConfig.INSTANCE.enabledMapIcons.get(icon) == null) {
-                    MapConfig.INSTANCE.enabledMapIcons.put(icon, e.getValue());
-                }
+                MapConfig.INSTANCE.enabledMapIcons.computeIfAbsent(icon, k -> e.getValue());
             }
 
             defaulted = MapConfig.resetMapIcons(true);
             for (Map.Entry<String, Boolean> e : defaulted.entrySet()) {
                 String icon = e.getKey();
-                if (MapConfig.INSTANCE.enabledMinimapIcons.get(icon) == null) {
-                    MapConfig.INSTANCE.enabledMinimapIcons.put(icon, e.getValue());
-                }
+                MapConfig.INSTANCE.enabledMinimapIcons.computeIfAbsent(icon, k -> e.getValue());
             }
 
             MapConfig.INSTANCE.saveSettings(MapModule.getModule());

@@ -33,7 +33,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class ClientEvents implements Listener {
 
-    BlockPos lastLocation = null;
+    private BlockPos lastLocation = null;
 
     @SubscribeEvent
     public void renderWorld(RenderWorldLastEvent e) {

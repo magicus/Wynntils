@@ -30,6 +30,8 @@ import java.util.Arrays;
 
 public class ClientEvents implements Listener {
 
+    private boolean openQuestBook = false;
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onChat(GameEvent e)  {
         AnalysePosition position = null;
@@ -94,8 +96,6 @@ public class ClientEvents implements Listener {
     public void startReading(WynnWorldEvent.Leave e) {
         QuestManager.clearData();
     }
-
-    boolean openQuestBook = false;
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void clickOnQuestBookItem(PacketEvent<CPacketPlayerTryUseItem> e) {

@@ -13,7 +13,7 @@ public enum ClassType {
     SHAMAN("Shaman/Skyseer"),
     NONE("none");
 
-    String displayName;
+    private String displayName;
 
     ClassType(String displayName) {
         this.displayName = displayName;

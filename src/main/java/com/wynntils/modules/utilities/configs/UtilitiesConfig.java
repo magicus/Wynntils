@@ -126,10 +126,6 @@ public class UtilitiesConfig extends SettingsClass {
         @Setting
         public long dailyReminder = 0L;
 
-        @Override
-        public void onSettingChanged(String name) {
-
-        }
     }
 
     @SettingsInfo(name = "item_highlights", displayPath = "Utilities/Item Highlights")
@@ -252,10 +248,6 @@ public class UtilitiesConfig extends SettingsClass {
         public float hotbarAlpha = 30;
 
 
-        @Override
-        public void onSettingChanged(String name) {
-
-        }
     }
 
     @SettingsInfo(name = "market", displayPath = "Utilities/Market")

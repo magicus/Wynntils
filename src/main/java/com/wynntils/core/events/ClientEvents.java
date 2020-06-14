@@ -45,6 +45,7 @@ public class ClientEvents {
     private boolean inClassSelection = false;
     private String lastWorld = "";
     private boolean acceptLeft = false;
+    private boolean isNextQuestCompleted = false;
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onServerJoin(FMLNetworkEvent.ClientConnectedToServerEvent e) {
@@ -64,8 +65,6 @@ public class ClientEvents {
             MinecraftForge.EVENT_BUS.post(new WynncraftServerEvent.Leave());
         }
     }
-
-    boolean isNextQuestCompleted = false;
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void triggerGameEvents(ClientChatReceivedEvent e) {
@@ -140,7 +139,7 @@ public class ClientEvents {
         if (!Reference.onServer) return;
         if (e.getPacket().getAction() != Action.UPDATE_DISPLAY_NAME && e.getPacket().getAction() != Action.REMOVE_PLAYER) return;
 
-        for (Object player : (List<?>) e.getPacket().getEntries()) {
+        for (Object player : e.getPacket().getEntries()) {
             // world handling below
             GameProfile profile = (GameProfile) ReflectionMethods.SPacketPlayerListItem$AddPlayerData_getProfile.invoke(player);
             if (profile.getId().equals(WORLD_UUID)) {

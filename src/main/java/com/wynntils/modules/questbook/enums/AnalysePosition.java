@@ -7,8 +7,8 @@ public enum AnalysePosition {
     DISCOVERIES("Discoveries", "Discoveries"), // User's Discoveries
     SECRET_DISCOVERIES("Discoveries", "Secret Discoveries"); // User's Secret Discoveries
 
-    String windowName;
-    String itemName;
+    private String windowName;
+    private String itemName;
 
     AnalysePosition(String windowName, String itemName) {
         this.windowName = windowName;

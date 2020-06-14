@@ -18,8 +18,8 @@ import java.util.List;
 
 public class ChestReplacer extends GuiChest {
 
-    IInventory lowerInv;
-    IInventory upperInv;
+    private IInventory lowerInv;
+    private IInventory upperInv;
 
     public ChestReplacer(IInventory upperInv, IInventory lowerInv) {
         super(upperInv, lowerInv);

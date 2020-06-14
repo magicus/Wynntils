@@ -34,8 +34,7 @@ public class JavaSoundAudioDevice extends AudioDeviceBase {
 
     protected Info getSourceLineInfo() {
         AudioFormat var1 = this.getAudioFormat();
-        Info var2 = new Info(SourceDataLine.class, var1);
-        return var2;
+        return new Info(SourceDataLine.class, var1);
     }
 
     public void open(AudioFormat var1) throws JavaLayerException {
@@ -61,12 +60,8 @@ public class JavaSoundAudioDevice extends AudioDeviceBase {
                 setLineGain(-30);
                 this.source.start();
             }
-        } catch (RuntimeException var3) {
+        } catch (RuntimeException | LinkageError | LineUnavailableException var3) {
             var1 = var3;
-        } catch (LinkageError var4) {
-            var1 = var4;
-        } catch (LineUnavailableException var5) {
-            var1 = var5;
         }
 
         if (this.source == null) {

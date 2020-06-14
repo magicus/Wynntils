@@ -130,7 +130,8 @@ public class FrameworkManager {
 
     public static void disableModules() {
         availableModules.values().forEach(c -> {
-            c.getModule().onDisable(); c.unregisterAllEvents();
+            c.getModule().onDisable();
+            c.unregisterAllEvents();
         });
     }
 

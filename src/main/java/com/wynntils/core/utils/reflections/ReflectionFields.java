@@ -5,6 +5,7 @@
 package com.wynntils.core.utils.reflections;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSound;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiPlayerTabOverlay;
@@ -37,7 +38,8 @@ public enum ReflectionFields {
     GuiPlayerTabOverlay_ENTRY_ORDERING(GuiPlayerTabOverlay.class, "ENTRY_ORDERING", "field_175252_a"),
     Minecraft_resourcePackRepository(Minecraft.class, "resourcePackRepository", "field_110448_aq"),
     CPacketClientSettings_chatVisibility(CPacketClientSettings.class, "chatVisibility", "field_149529_c"),
-    ModelRenderer_compiled(ModelRenderer.class, "compiled", "field_78812_q");
+    ModelRenderer_compiled(ModelRenderer.class, "compiled", "field_78812_q"),
+    PositionedSound_pitch(PositionedSound.class, "pitch",  "pitch");
 
     static {
         GuiPlayerTabOverlay_ENTRY_ORDERING.removeFinal();

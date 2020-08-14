@@ -4,6 +4,8 @@
 
 package com.wynntils.modules.core.events;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonWriter;
 import com.wynntils.ModCore;
 import com.wynntils.Reference;
 import com.wynntils.core.events.custom.*;
@@ -30,6 +32,8 @@ import com.wynntils.modules.core.overlays.inventories.InventoryReplacer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound;
+import net.minecraft.client.audio.PositionedSound;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
@@ -45,21 +49,27 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.client.CPacketClientSettings;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.server.*;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.ChatType;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import java.io.*;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -373,6 +383,101 @@ public class ClientEvents implements Listener {
     @SubscribeEvent
     public void onTotemSpawn(PacketEvent<SPacketSpawnObject> e) {
         totemTracker.onTotemSpawn(e);
+    }
+
+    private static boolean isClose(double a, double b)
+    {
+        double diff = Math.abs(a - b);
+        return  (diff < 3);
+    }
+
+    MusicNote[] ragni = new MusicNote[] {
+            new MusicNote(MusicNote.Instrument.HARP, 0.6f),
+            new MusicNote(MusicNote.Instrument.HARP, 0.76f),
+            new MusicNote(MusicNote.Instrument.BASS, 0.6f),
+            new MusicNote(MusicNote.Instrument.HARP, 0.6f),
+    };
+
+    static List<MusicNote> noteList = new LinkedList<>();
+    static int matchIndex = 0;
+    static boolean recording = false;
+    static String songTitle;
+    static int notesSaved = 0;
+
+    public static void stopRecording() {
+        recording = false;
+        TextComponentString text = new TextComponentString("Recording aborted for " + songTitle + "!");
+        text.getStyle().setColor(TextFormatting.AQUA);
+        ModCore.mc().player.sendMessage(text);
+    }
+
+    private void recordingDone() {
+        recording = false;
+
+        noteList.subList(noteList.size() - 10, noteList.size()).clear();
+
+        TextComponentString text = new TextComponentString("Recording done for " + songTitle + "!");
+        text.getStyle().setColor(TextFormatting.AQUA);
+        ModCore.mc().player.sendMessage(text);
+
+        Gson gson = new Gson();
+
+        try {
+            File musicDir = new File(Reference.MOD_STORAGE_ROOT, "recordings");
+            musicDir.mkdirs();
+            try (JsonWriter writer = new JsonWriter(new OutputStreamWriter(new FileOutputStream(
+                    new File(musicDir, songTitle + "-music.json")), "UTF-8"))) {
+                gson.toJson(noteList, noteList.getClass(), writer);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void startRecording(String songName) {
+        matchIndex = 0;
+        noteList = new LinkedList<>();
+        songTitle = songName;
+        matchIndex = 0;
+        notesSaved = 0;
+        recording = true;
+    }
+
+    @SubscribeEvent
+    public void onSound2(PlaySoundEvent e) {
+        ISound sound = e.getSound();
+        if (sound == null || sound.getCategory() != SoundCategory.RECORDS) return;
+        if (!isClose(ModCore.mc().player.posX , sound.getXPosF())
+                || !isClose(ModCore.mc().player.posZ , sound.getZPosF())) return;
+        if (!recording) return;
+        if (!(sound instanceof PositionedSound)) return;
+
+        PositionedSound positionedSound = (PositionedSound) sound;
+
+        ModCore.mc().getSoundHandler();
+        float pitch = ReflectionFields.PositionedSound_pitch.getValue(positionedSound);
+        String instrument = e.getName().replaceFirst("^block.note.", "");
+        MusicNote note = new MusicNote(instrument, pitch);
+
+        // Save it
+        noteList.add(note);
+        notesSaved++;
+
+        if (notesSaved < 20) return;
+
+        // Check if we're looping
+        if (noteList.get(matchIndex).match(instrument, pitch)) {
+            matchIndex++;
+            if (matchIndex >= 10) {
+                Reference.LOGGER.info("STOP RECORDING count:" );
+      //          noteList.subList(noteList.size() - 10, noteList.size()).clear();
+                recordingDone();
+            }
+        } else {
+            matchIndex = 0;
+        }
+
+        //     e.setResultSound(null);
     }
 
     @SubscribeEvent

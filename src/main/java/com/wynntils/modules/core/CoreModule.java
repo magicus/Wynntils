@@ -7,6 +7,7 @@ package com.wynntils.modules.core;
 import com.wynntils.core.framework.enums.Priority;
 import com.wynntils.core.framework.instances.Module;
 import com.wynntils.core.framework.interfaces.annotations.ModuleInfo;
+import com.wynntils.model.WynnImpl;
 import com.wynntils.modules.core.commands.*;
 import com.wynntils.modules.core.config.CoreDBConfig;
 import com.wynntils.modules.core.events.ClientEvents;
@@ -28,6 +29,7 @@ public class CoreModule extends Module {
         registerOverlay(new DownloadOverlay(), Priority.HIGHEST);
 
         registerSettings(CoreDBConfig.class);
+        registerSettings(WynnImpl.class);
 
         registerCommand(new CommandAdmin());
         registerCommand(new CommandCompass());

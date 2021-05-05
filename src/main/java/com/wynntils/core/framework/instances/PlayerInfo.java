@@ -78,10 +78,10 @@ public class PlayerInfo {
 
             if (actionBar.contains("|") || actionBar.contains("_")) {
                 specialActionBar = StringUtils.getCutString(actionBar, "    ", "    " + TextFormatting.AQUA, false);
+                System.out.println("SPECIAL:" + specialActionBar);
             } else {
                 specialActionBar = null;
             }
-
             Matcher match = actionbarPattern.matcher(actionBar);
 
             if (match.matches()) {

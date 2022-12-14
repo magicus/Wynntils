@@ -130,7 +130,6 @@ public class DiscoveryManager extends CoreManager {
             if (json.has("error")) { // Returns error if page does not exist
                 McUtils.sendMessageToClient(new TextComponent(
                         ChatFormatting.RED + "Unable to find discovery coordinates. (Wiki page not found)"));
-                return;
             }
 
             String wikiText = json.get("parse")

@@ -42,28 +42,6 @@ public class QuestInfo {
         this.nextTask = nextTask;
     }
 
-    protected QuestInfo(
-            String name,
-            QuestStatus status,
-            QuestLength length,
-            int level,
-            String nextTask,
-            List<Pair<String, Integer>> additionalRequirements,
-            boolean isMiniQuest,
-            int pageNumber,
-            boolean tracked) {
-        this(
-                new Quest(
-                        name,
-                        level,
-                        QuestType.fromIsMiniQuestBoolean(isMiniQuest),
-                        length,
-                        additionalRequirements),
-                status,
-                pageNumber, tracked, nextTask
-        );
-    }
-
     public Quest getQuest() {
         return quest;
     }

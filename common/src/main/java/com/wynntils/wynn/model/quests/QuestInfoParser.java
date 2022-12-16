@@ -46,16 +46,10 @@ public class QuestInfoParser {
             String description = getDescription(lore);
             boolean tracked = isQuestTracked(item);
 
-            QuestInfo questInfo = new QuestInfo(
-                    name,
-                    status,
-                    questLength,
-                    level,
-                    description,
-                    additionalRequirements,
-                    isMiniQuest,
-                    pageNumber,
-                    tracked);
+            Quest quest = new Quest(
+                    name, level, QuestType.fromIsMiniQuestBoolean(isMiniQuest), questLength, additionalRequirements);
+
+            QuestInfo questInfo = new QuestInfo(quest, status, pageNumber, tracked, description);
             return questInfo;
         } catch (NoSuchElementException e) {
             WynntilsMod.warn("Failed to parse quest book item: " + item);

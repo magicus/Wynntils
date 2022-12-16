@@ -20,7 +20,6 @@ import com.wynntils.mc.utils.McUtils;
 import com.wynntils.utils.Pair;
 import com.wynntils.utils.StringUtils;
 import com.wynntils.wynn.model.quests.QuestInfo;
-import com.wynntils.wynn.model.quests.QuestManager;
 import java.util.Optional;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -89,7 +88,9 @@ public class QuestButton extends AbstractButton {
 
         if (Managers.Quest.isTracked(this.questInfo)) {
             colors = TRACKED_BUTTON_COLOR;
-        } else if (this.questInfo.getQuest().equals(questBookScreen.getTrackingRequested().getQuest())) {
+        } else if (this.questInfo
+                .getQuest()
+                .equals(questBookScreen.getTrackingRequested().getQuest())) {
             colors = TRACKING_REQUESTED_BUTTON_COLOR;
         } else {
             colors = BUTTON_COLOR;

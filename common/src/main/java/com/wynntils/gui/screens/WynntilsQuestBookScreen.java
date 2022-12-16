@@ -366,7 +366,8 @@ public class WynntilsQuestBookScreen extends WynntilsMenuListScreen<QuestInfo, Q
     protected void reloadElementsList(String searchText) {
         List<QuestInfo> newQuests = getSortedQuests();
         elements = newQuests.stream()
-                .filter(questInfo -> StringUtils.partialMatch(questInfo.getQuest().getName(), searchText))
+                .filter(questInfo ->
+                        StringUtils.partialMatch(questInfo.getQuest().getName(), searchText))
                 .collect(Collectors.toList());
 
         this.maxPage = Math.max(

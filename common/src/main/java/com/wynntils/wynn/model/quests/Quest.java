@@ -6,8 +6,7 @@ package com.wynntils.wynn.model.quests;
 
 import com.wynntils.utils.Pair;
 import java.util.List;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import java.util.Objects;
 
 public class Quest {
     // Quest metadata is forever constant
@@ -59,27 +58,20 @@ public class Quest {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || (!(o instanceof Quest quest))) return false;
-
-        return new EqualsBuilder()
-                .append(level, quest.level)
-                .append(name, quest.name)
-                .append(type, quest.type)
-                .append(length, quest.length)
-                .append(additionalRequirements, quest.additionalRequirements)
-                .isEquals();
+        if (o == null || getClass() != o.getClass()) return false;
+        Quest quest = (Quest) o;
+        return level == quest.level
+                && type == quest.type
+                && Objects.equals(name, quest.name)
+                && length == quest.length
+                && Objects.equals(additionalRequirements, quest.additionalRequirements);
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(name)
-                .append(level)
-                .append(type)
-                .append(length)
-                .append(additionalRequirements)
-                .toHashCode();
+        return Objects.hash(name, length, level, additionalRequirements, type);
     }
+
 
     @Override
     public String toString() {

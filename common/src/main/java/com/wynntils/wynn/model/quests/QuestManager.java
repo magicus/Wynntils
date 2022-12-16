@@ -125,8 +125,9 @@ public final class QuestManager extends Manager {
             return;
         }
 
-        ApiResponse apiResponse =
-                Managers.Net.callApi(UrlId.API_WIKI_QUEST_PAGE_QUERY, Map.of("name", questInfo.getQuest().getName()));
+        ApiResponse apiResponse = Managers.Net.callApi(
+                UrlId.API_WIKI_QUEST_PAGE_QUERY,
+                Map.of("name", questInfo.getQuest().getName()));
         apiResponse.handleJsonArray(json -> {
             String pageTitle = json.get(0).getAsJsonObject().get("_pageTitle").getAsString();
             Managers.Net.openLink(UrlId.LINK_WIKI_LOOKUP, Map.of("title", pageTitle));

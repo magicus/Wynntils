@@ -107,23 +107,6 @@ public class QuestInfo {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        QuestInfo questInfo = (QuestInfo) o;
-        return level == questInfo.level
-                && isMiniQuest == questInfo.isMiniQuest
-                && Objects.equals(name, questInfo.name)
-                && length == questInfo.length
-                && Objects.equals(additionalRequirements, questInfo.additionalRequirements);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, length, level, additionalRequirements, isMiniQuest);
-    }
-
-    @Override
     public String toString() {
         return "QuestInfo[" + "quest=" + quest + ", " + "status=" + status + ", " + "nextTask=\"" + nextTask + "]";
     }
@@ -137,12 +120,16 @@ public class QuestInfo {
         tooltipLines.add(questInfo.getStatus().getQuestBookComponent());
         tooltipLines.add(new TextComponent(""));
         // We always parse level as one, so check if this mini-quest does not have a min combat level
-        if (!questInfo.getQuest().getType().isMiniQuest() || questInfo.getAdditionalRequirements().isEmpty()) {
-            tooltipLines.add((Managers.Character.getCharacterInfo().getLevel() >= questInfo.getQuest().getLevel()
+        if (!questInfo.getQuest().getType().isMiniQuest()
+                || questInfo.getAdditionalRequirements().isEmpty()) {
+            tooltipLines.add((Managers.Character.getCharacterInfo().getLevel()
+                                    >= questInfo.getQuest().getLevel()
                             ? new TextComponent("✔").withStyle(ChatFormatting.GREEN)
                             : new TextComponent("✖").withStyle(ChatFormatting.RED))
                     .append(new TextComponent(" Combat Lv. Min: ").withStyle(ChatFormatting.GRAY))
-                    .append(new TextComponent(String.valueOf(questInfo.getQuest().getLevel())).withStyle(ChatFormatting.WHITE)));
+                    .append(new TextComponent(
+                                    String.valueOf(questInfo.getQuest().getLevel()))
+                            .withStyle(ChatFormatting.WHITE)));
         }
 
         for (Pair<String, Integer> additionalRequirement : questInfo.getAdditionalRequirements()) {

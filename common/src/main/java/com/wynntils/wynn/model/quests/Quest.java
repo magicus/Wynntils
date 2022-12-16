@@ -48,6 +48,10 @@ public class Quest {
         return length;
     }
 
+    public String getFullName() {
+        return type.isMiniQuest() ? "Mini-Quest - " + name : name;
+    }
+
     public List<Pair<String, Integer>> getAdditionalRequirements() {
         return additionalRequirements;
     }
@@ -85,19 +89,5 @@ public class Quest {
                 + type + ", length="
                 + length + ", additionalRequirements="
                 + additionalRequirements + ']';
-    }
-
-    public enum QuestType {
-        NORMAL,
-        MINIQUEST;
-
-        public static QuestType fromIsMiniQuestBoolean(boolean isMiniQuest) {
-            return isMiniQuest ? MINIQUEST : NORMAL;
-        }
-
-        // Convenience getter
-        public boolean isMiniQuest() {
-            return this == MINIQUEST;
-        }
     }
 }

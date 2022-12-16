@@ -56,7 +56,7 @@ public class QuestInfo {
                 new Quest(
                         name,
                         level,
-                        Quest.QuestType.fromIsMiniQuestBoolean(isMiniQuest),
+                        QuestType.fromIsMiniQuestBoolean(isMiniQuest),
                         length,
                         additionalRequirements),
                 status,

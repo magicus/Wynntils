@@ -40,6 +40,10 @@ public final class QuestManager extends Manager {
         super(List.of(netManager));
     }
 
+    public boolean isTracked(QuestInfo questInfo) {
+        return questInfo.getQuest().equals(getTrackedQuest().getQuest());
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onWorldStateChanged(WorldStateEvent e) {
         reset();
@@ -172,18 +176,11 @@ public final class QuestManager extends Manager {
     }
 
     private Optional<QuestInfo> getQuestInfoFromName(String name) {
-        Optional<QuestInfo> questInfoOpt;
-        if (name.startsWith("Mini-Quest - ")) {
-            String shortName = StringUtils.replaceOnce(name, "Mini-Quest - ", "");
-            questInfoOpt = Managers.Quest.miniQuests.stream()
-                    .filter(quest -> quest.getQuest().getName().equals(shortName))
-                    .findFirst();
-        } else {
-            questInfoOpt = Managers.Quest.quests.stream()
-                    .filter(quest -> quest.getQuest().getName().equals(name))
-                    .findFirst();
-        }
-        return questInfoOpt;
+        List<QuestInfo> questList = name.startsWith("Mini-Quest - ") ? miniQuests : quests;
+
+        return questList.stream()
+                .filter(quest -> quest.getQuest().getFullName().equals(name))
+                .findFirst();
     }
 
     private boolean updateAfterRescan(String name, String nextTask) {

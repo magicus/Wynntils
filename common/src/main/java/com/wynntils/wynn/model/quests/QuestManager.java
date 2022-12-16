@@ -60,14 +60,9 @@ public final class QuestManager extends Manager {
         afterRescanTask = null;
     }
 
-    public void rescanQuestBook(boolean includeQuests, boolean includeMiniQuests) {
-        WynntilsMod.info("Requesting rescan of Quest Book");
-        if (includeQuests) {
-            CONTAINER_QUERIES.queryQuestBook(QuestType.NORMAL);
-        }
-        if (includeMiniQuests) {
-            CONTAINER_QUERIES.queryQuestBook(QuestType.MINIQUEST);
-        }
+    public void rescanQuestBook(QuestType type) {
+        WynntilsMod.info("Requesting rescan of Quest Book [" + type + "]");
+        CONTAINER_QUERIES.queryQuestBook(type);
     }
 
     public void rescanDialogueHistory() {
@@ -105,6 +100,8 @@ public final class QuestManager extends Manager {
     }
 
     public void startTracking(QuestInfo questInfo) {
+        if (questInfo.isTracked()) return;
+
         CONTAINER_QUERIES.toggleTracking(questInfo);
     }
 
@@ -113,15 +110,19 @@ public final class QuestManager extends Manager {
     }
 
     public void openQuestOnWiki(QuestInfo questInfo) {
-        if (questInfo.getQuest().getType().isMiniQuest()) {
-            String type = questInfo.getQuest().getName().split(" ")[0];
-
-            String wikiName = "Quests#" + type + "ing_Posts";
-
-            Managers.Net.openLink(UrlId.LINK_WIKI_LOOKUP, Map.of("title", wikiName));
-            return;
+        switch (questInfo.getQuest().getType()) {
+            case NORMAL -> openNormalQuestOnWiki(questInfo);
+            case MINIQUEST -> openMiniQuestOnWiki(questInfo);
         }
+    }
 
+    private void openMiniQuestOnWiki(QuestInfo questInfo) {
+        String type = questInfo.getQuest().getName().split(" ")[0];
+        String wikiName = "Quests#" + type + "ing_Posts";
+        Managers.Net.openLink(UrlId.LINK_WIKI_LOOKUP, Map.of("title", wikiName));
+    }
+
+    private void openNormalQuestOnWiki(QuestInfo questInfo) {
         ApiResponse apiResponse = Managers.Net.callApi(
                 UrlId.API_WIKI_QUEST_PAGE_QUERY,
                 Map.of("name", questInfo.getQuest().getName()));
@@ -187,7 +188,7 @@ public final class QuestManager extends Manager {
         if (quests.get(type).isEmpty()) {
             afterRescanTask = nextTask;
             afterRescanName = stripPrefix(name);
-            rescanQuestBook(!type.isMiniQuest(), type.isMiniQuest());
+            rescanQuestBook(type);
             return true;
         }
 

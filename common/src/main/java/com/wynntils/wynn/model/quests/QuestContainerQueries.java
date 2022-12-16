@@ -26,8 +26,8 @@ public class QuestContainerQueries {
     private static final int MINI_QUESTS_SLOT = 53;
     private static final Map<QuestType, Integer> MAX_PAGE = Map.of(QuestType.NORMAL, 4, QuestType.MINIQUEST, 3);
 
-    private List<QuestInfo> newQuests;
-    private QuestInfo trackedQuest;
+    private List<QuestInfo> collectedQuests;
+    private QuestInfo foundTrackedQuest;
 
     /**
      * Trigger a rescan of the quest book. When the rescan is done, a QuestBookReloadedEvent will
@@ -45,16 +45,12 @@ public class QuestContainerQueries {
                 .matchTitle(Managers.Quest.getQuestBookTitle(1));
 
         if (type == QuestType.MINIQUEST) {
-            queryBuilder
-                    .processContainer(c -> {})
-                    .clickOnSlot(MINI_QUESTS_SLOT)
-                    .matchTitle(getQuestBookTitle(1, QuestType.MINIQUEST));
+            queryBuilder.clickOnSlot(MINI_QUESTS_SLOT).matchTitle(getQuestBookTitle(1, QuestType.MINIQUEST));
         }
 
         queryBuilder.processContainer(c -> processQuestBookPage(c, 1, type, MAX_PAGE.get(type)));
 
-        int maxPage = MAX_PAGE.get(type) + 1;
-        for (int i = 2; i < maxPage; i++) {
+        for (int i = 2; i <= MAX_PAGE.get(type); i++) {
             final int page = i; // Lambdas need final variables
             queryBuilder
                     .clickOnSlotWithName(NEXT_PAGE_SLOT, Items.GOLDEN_SHOVEL, getNextPageButtonName(page))
@@ -69,7 +65,7 @@ public class QuestContainerQueries {
         // Quests are in the top-left container area
         if (page == 1) {
             // Build new set of quests without disturbing current set
-            newQuests = new ArrayList<>();
+            collectedQuests = new ArrayList<>();
         }
         for (int row = 0; row < 6; row++) {
             for (int col = 0; col < 7; col++) {
@@ -82,25 +78,22 @@ public class QuestContainerQueries {
                 QuestInfo questInfo = QuestInfoParser.parseItem(item, page, type);
                 if (questInfo == null) continue;
 
-                newQuests.add(questInfo);
+                collectedQuests.add(questInfo);
                 if (questInfo.isTracked()) {
-                    trackedQuest = questInfo;
+                    foundTrackedQuest = questInfo;
                 }
             }
         }
 
         if (page == maxPage) {
             // Last page finished
-            Managers.Quest.updateQuestsFromQuery(type, newQuests, trackedQuest);
+            reportDiscoveredQuests(type, collectedQuests, foundTrackedQuest);
         }
     }
 
-    private String getNextPageButtonName(int nextPageNum) {
-        return "[§f§lPage " + nextPageNum + "§a >§2>§a>§2>§a>]";
-    }
-
-    private String getQuestBookTitle(int pageNum, QuestType type) {
-        return "^§0\\[Pg. " + pageNum + "\\] §8.*§0 " + (type.isMiniQuest() ? "Mini-" : "") + "Quests$";
+    private void reportDiscoveredQuests(QuestType type, List<QuestInfo> quests, QuestInfo trackedQuest) {
+        // Call back to manager with our result
+        Managers.Quest.updateQuestsFromQuery(type, quests, trackedQuest);
     }
 
     protected void toggleTracking(QuestInfo questInfo) {
@@ -110,16 +103,12 @@ public class QuestContainerQueries {
                 .matchTitle(Managers.Quest.getQuestBookTitle(1));
 
         if (questInfo.getQuest().getType().isMiniQuest()) {
-            queryBuilder
-                    .processContainer(c -> {})
-                    .clickOnSlot(MINI_QUESTS_SLOT)
-                    .matchTitle(getQuestBookTitle(1, QuestType.MINIQUEST));
+            queryBuilder.clickOnSlot(MINI_QUESTS_SLOT).matchTitle(getQuestBookTitle(1, QuestType.MINIQUEST));
         }
 
         if (questInfo.getPageNumber() > 1) {
             for (int i = 2; i <= questInfo.getPageNumber(); i++) {
-                queryBuilder
-                        .processContainer(container -> {}) // we ignore this because this is not the correct page
+                queryBuilder // we ignore this because this is not the correct page
                         .clickOnSlotWithName(NEXT_PAGE_SLOT, Items.GOLDEN_SHOVEL, getNextPageButtonName(i))
                         .matchTitle(Managers.Quest.getQuestBookTitle(i));
             }
@@ -148,5 +137,13 @@ public class QuestContainerQueries {
                 }
             }
         }
+    }
+
+    private String getNextPageButtonName(int nextPageNum) {
+        return "[§f§lPage " + nextPageNum + "§a >§2>§a>§2>§a>]";
+    }
+
+    private String getQuestBookTitle(int pageNum, QuestType type) {
+        return "^§0\\[Pg. " + pageNum + "\\] §8.*§0 " + (type.isMiniQuest() ? "Mini-" : "") + "Quests$";
     }
 }

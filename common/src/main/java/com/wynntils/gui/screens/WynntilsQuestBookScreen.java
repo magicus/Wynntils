@@ -69,7 +69,8 @@ public class WynntilsQuestBookScreen extends WynntilsMenuListScreen<QuestInfo, Q
     protected void init() {
         McUtils.mc().keyboardHandler.setSendRepeatsToGui(true);
 
-        Managers.Quest.rescanQuestBook(true, true);
+        Managers.Quest.rescanQuestBook(QuestType.NORMAL);
+        Managers.Quest.rescanQuestBook(QuestType.MINIQUEST);
 
         super.init();
 
@@ -85,7 +86,7 @@ public class WynntilsQuestBookScreen extends WynntilsMenuListScreen<QuestInfo, Q
                 11,
                 (int) (Texture.RELOAD_BUTTON.width() / 2 / 1.7f),
                 (int) (Texture.RELOAD_BUTTON.height() / 1.7f),
-                () -> Managers.Quest.rescanQuestBook(!miniQuestMode, miniQuestMode)));
+                () -> Managers.Quest.rescanQuestBook(QuestType.fromIsMiniQuestBoolean(miniQuestMode))));
         this.addRenderableWidget(new PageSelectorButton(
                 Texture.QUEST_BOOK_BACKGROUND.width() / 2 + 50 - Texture.FORWARD_ARROW.width() / 2,
                 Texture.QUEST_BOOK_BACKGROUND.height() - 25,
@@ -437,7 +438,7 @@ public class WynntilsQuestBookScreen extends WynntilsMenuListScreen<QuestInfo, Q
         this.setQuests(getSortedQuests());
         this.setCurrentPage(0);
 
-        Managers.Quest.rescanQuestBook(!this.miniQuestMode, this.miniQuestMode);
+        Managers.Quest.rescanQuestBook(QuestType.fromIsMiniQuestBoolean(miniQuestMode));
     }
 
     public QuestSortOrder getQuestSortOrder() {

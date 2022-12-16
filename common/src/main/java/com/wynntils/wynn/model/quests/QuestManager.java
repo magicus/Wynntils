@@ -213,7 +213,7 @@ public final class QuestManager extends Manager {
                 trackedQuest.setNextTask(afterRescanTask);
                 afterRescanName = null;
                 afterRescanTask = null;
-                Managers.Quest.updateTrackedQuest(trackedQuest);
+                updateTrackedQuest(trackedQuest);
             }
             WynntilsMod.warn("Tracked Quest according to scoreboard is " + this.trackedQuest + " but query says "
                     + trackedQuest);

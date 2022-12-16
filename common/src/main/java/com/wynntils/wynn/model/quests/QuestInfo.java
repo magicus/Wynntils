@@ -13,6 +13,7 @@ import com.wynntils.wynn.objects.profiles.ingredient.ProfessionType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -103,6 +104,23 @@ public class QuestInfo {
     @Override
     public int hashCode() {
         return quest.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QuestInfo questInfo = (QuestInfo) o;
+        return level == questInfo.level
+                && isMiniQuest == questInfo.isMiniQuest
+                && Objects.equals(name, questInfo.name)
+                && length == questInfo.length
+                && Objects.equals(additionalRequirements, questInfo.additionalRequirements);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, length, level, additionalRequirements, isMiniQuest);
     }
 
     @Override

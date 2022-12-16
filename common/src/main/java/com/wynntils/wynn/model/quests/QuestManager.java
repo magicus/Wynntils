@@ -63,10 +63,10 @@ public final class QuestManager extends Manager {
     public void rescanQuestBook(boolean includeQuests, boolean includeMiniQuests) {
         WynntilsMod.info("Requesting rescan of Quest Book");
         if (includeQuests) {
-            CONTAINER_QUERIES.queryQuestBook();
+            CONTAINER_QUERIES.queryQuestBook(QuestType.NORMAL);
         }
         if (includeMiniQuests) {
-            CONTAINER_QUERIES.queryMiniQuests();
+            CONTAINER_QUERIES.queryQuestBook(QuestType.MINIQUEST);
         }
     }
 

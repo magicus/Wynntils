@@ -13,6 +13,7 @@ import com.wynntils.wynn.utils.ContainerUtils;
 import com.wynntils.wynn.utils.InventoryUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TextComponent;
@@ -23,38 +24,48 @@ import org.lwjgl.glfw.GLFW;
 public class QuestContainerQueries {
     private static final int NEXT_PAGE_SLOT = 8;
     private static final int MINI_QUESTS_SLOT = 53;
+    private static final Map<QuestType, Integer> MAX_PAGE = Map.of(QuestType.NORMAL, 4, QuestType.MINIQUEST, 3);
 
     private List<QuestInfo> newQuests;
-    private List<QuestInfo> newMiniQuests;
     private QuestInfo trackedQuest;
 
     /**
      * Trigger a rescan of the quest book. When the rescan is done, a QuestBookReloadedEvent will
      * be sent. The available quests are then available using getQuests.
      */
-    protected void queryQuestBook() {
-        ScriptedContainerQuery.QueryBuilder queryBuilder = ScriptedContainerQuery.builder("Quest Book Query")
+    protected void queryQuestBook(QuestType type) {
+        ScriptedContainerQuery.QueryBuilder queryBuilder = ScriptedContainerQuery.builder(
+                        "Quest Book Query [" + type + "]")
                 .onError(msg -> {
-                    WynntilsMod.warn("Problem querying Quest Book: " + msg);
+                    WynntilsMod.warn("Problem querying Quest Book [" + type + "]: " + msg);
                     McUtils.sendMessageToClient(
                             new TextComponent("Error updating quest book.").withStyle(ChatFormatting.RED));
                 })
                 .useItemInHotbar(InventoryUtils.QUEST_BOOK_SLOT_NUM)
-                .matchTitle(Managers.Quest.getQuestBookTitle(1))
-                .processContainer(c -> processQuestBookPage(c, 1));
+                .matchTitle(Managers.Quest.getQuestBookTitle(1));
 
-        for (int i = 2; i < 5; i++) {
+        if (type == QuestType.MINIQUEST) {
+            queryBuilder
+                    .processContainer(c -> {})
+                    .clickOnSlot(MINI_QUESTS_SLOT)
+                    .matchTitle(getQuestBookTitle(1, QuestType.MINIQUEST));
+        }
+
+        queryBuilder.processContainer(c -> processQuestBookPage(c, 1, type, MAX_PAGE.get(type)));
+
+        int maxPage = MAX_PAGE.get(type) + 1;
+        for (int i = 2; i < maxPage; i++) {
             final int page = i; // Lambdas need final variables
             queryBuilder
                     .clickOnSlotWithName(NEXT_PAGE_SLOT, Items.GOLDEN_SHOVEL, getNextPageButtonName(page))
-                    .matchTitle(Managers.Quest.getQuestBookTitle(page))
-                    .processContainer(c -> processQuestBookPage(c, page));
+                    .matchTitle(getQuestBookTitle(page, type))
+                    .processContainer(c -> processQuestBookPage(c, page, type, MAX_PAGE.get(type)));
         }
 
         queryBuilder.build().executeQuery();
     }
 
-    private void processQuestBookPage(ContainerContent container, int page) {
+    private void processQuestBookPage(ContainerContent container, int page, QuestType type, int maxPage) {
         // Quests are in the top-left container area
         if (page == 1) {
             // Build new set of quests without disturbing current set
@@ -64,11 +75,11 @@ public class QuestContainerQueries {
             for (int col = 0; col < 7; col++) {
                 int slot = row * 9 + col;
 
-                // Very first slot is chat history
-                if (slot == 0) continue;
+                // Very first slot for normal quests is chat history
+                if (type == QuestType.NORMAL && slot == 0) continue;
 
                 ItemStack item = container.items().get(slot);
-                QuestInfo questInfo = QuestInfoParser.parseItem(item, page, QuestType.NORMAL);
+                QuestInfo questInfo = QuestInfoParser.parseItem(item, page, type);
                 if (questInfo == null) continue;
 
                 newQuests.add(questInfo);
@@ -78,9 +89,9 @@ public class QuestContainerQueries {
             }
         }
 
-        if (page == 4) {
+        if (page == maxPage) {
             // Last page finished
-            Managers.Quest.updateQuestsFromQuery(QuestType.NORMAL, newQuests, trackedQuest);
+            Managers.Quest.updateQuestsFromQuery(type, newQuests, trackedQuest);
         }
     }
 
@@ -88,60 +99,8 @@ public class QuestContainerQueries {
         return "[§f§lPage " + nextPageNum + "§a >§2>§a>§2>§a>]";
     }
 
-    protected void queryMiniQuests() {
-        ScriptedContainerQuery.QueryBuilder queryBuilder = ScriptedContainerQuery.builder("Quest Book Mini Quest Query")
-                .onError(msg -> {
-                    WynntilsMod.warn("Problem querying Quest Book for mini quests: " + msg);
-                    McUtils.sendMessageToClient(
-                            new TextComponent("Error updating quest book.").withStyle(ChatFormatting.RED));
-                })
-                .useItemInHotbar(InventoryUtils.QUEST_BOOK_SLOT_NUM)
-                .matchTitle(Managers.Quest.getQuestBookTitle(1))
-                .processContainer(c -> {})
-                .clickOnSlot(MINI_QUESTS_SLOT)
-                .matchTitle(getMiniQuestBookTitle(1))
-                .processContainer(c -> processMiniQuestBookPage(c, 1));
-
-        for (int i = 2; i < 4; i++) {
-            final int page = i; // Lambdas need final variables
-            queryBuilder
-                    .clickOnSlotWithName(NEXT_PAGE_SLOT, Items.GOLDEN_SHOVEL, getNextPageButtonName(page))
-                    .matchTitle(getMiniQuestBookTitle(page))
-                    .processContainer(c -> processMiniQuestBookPage(c, page));
-        }
-
-        queryBuilder.build().executeQuery();
-    }
-
-    private void processMiniQuestBookPage(ContainerContent container, int page) {
-        // Quests are in the top-left container area
-        if (page == 1) {
-            // Build new set of quests without disturbing current set
-            newMiniQuests = new ArrayList<>();
-        }
-        for (int row = 0; row < 6; row++) {
-            for (int col = 0; col < 7; col++) {
-                int slot = row * 9 + col;
-
-                ItemStack item = container.items().get(slot);
-                QuestInfo questInfo = QuestInfoParser.parseItem(item, page, QuestType.MINIQUEST);
-                if (questInfo == null) continue;
-
-                if (questInfo.isTracked()) {
-                    trackedQuest = questInfo;
-                }
-                newMiniQuests.add(questInfo);
-            }
-        }
-
-        if (page == 3) {
-            // Last page finished
-            Managers.Quest.updateQuestsFromQuery(QuestType.MINIQUEST, newMiniQuests, trackedQuest);
-        }
-    }
-
-    private String getMiniQuestBookTitle(int pageNum) {
-        return "^§0\\[Pg. " + pageNum + "\\] §8.*§0 Mini-Quests$";
+    private String getQuestBookTitle(int pageNum, QuestType type) {
+        return "^§0\\[Pg. " + pageNum + "\\] §8.*§0 " + (type.isMiniQuest() ? "Mini-" : "") + "Quests$";
     }
 
     protected void toggleTracking(QuestInfo questInfo) {
@@ -151,7 +110,10 @@ public class QuestContainerQueries {
                 .matchTitle(Managers.Quest.getQuestBookTitle(1));
 
         if (questInfo.getQuest().getType().isMiniQuest()) {
-            queryBuilder.processContainer(c -> {}).clickOnSlot(MINI_QUESTS_SLOT).matchTitle(getMiniQuestBookTitle(1));
+            queryBuilder
+                    .processContainer(c -> {})
+                    .clickOnSlot(MINI_QUESTS_SLOT)
+                    .matchTitle(getQuestBookTitle(1, QuestType.MINIQUEST));
         }
 
         if (questInfo.getPageNumber() > 1) {

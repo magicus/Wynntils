@@ -4,12 +4,18 @@
  */
 package com.wynntils.wynn.model.quests;
 
+import static com.wynntils.wynn.model.quests.QuestManager.MINI_QUEST_PREFIX;
+
 public enum QuestType {
     NORMAL,
     MINIQUEST;
 
     public static QuestType fromIsMiniQuestBoolean(boolean isMiniQuest) {
         return isMiniQuest ? MINIQUEST : NORMAL;
+    }
+
+    public static QuestType fromName(String name) {
+        return fromIsMiniQuestBoolean(name.startsWith(MINI_QUEST_PREFIX));
     }
 
     // Convenience getter

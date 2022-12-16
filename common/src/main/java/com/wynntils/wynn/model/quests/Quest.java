@@ -72,7 +72,6 @@ public class Quest {
         return Objects.hash(name, length, level, additionalRequirements, type);
     }
 
-
     @Override
     public String toString() {
         return "Quest[" + "name='"

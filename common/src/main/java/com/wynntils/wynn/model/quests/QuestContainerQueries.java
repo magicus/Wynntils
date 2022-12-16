@@ -68,7 +68,7 @@ public class QuestContainerQueries {
                 if (slot == 0) continue;
 
                 ItemStack item = container.items().get(slot);
-                QuestInfo questInfo = QuestInfoParser.parseItem(item, page, false);
+                QuestInfo questInfo = QuestInfoParser.parseItem(item, page, QuestType.NORMAL);
                 if (questInfo == null) continue;
 
                 newQuests.add(questInfo);
@@ -80,7 +80,7 @@ public class QuestContainerQueries {
 
         if (page == 4) {
             // Last page finished
-            Managers.Quest.updateQuestsFromQuery(newQuests, trackedQuest);
+            Managers.Quest.updateQuestsFromQuery(QuestType.NORMAL, newQuests, trackedQuest);
         }
     }
 
@@ -124,7 +124,7 @@ public class QuestContainerQueries {
                 int slot = row * 9 + col;
 
                 ItemStack item = container.items().get(slot);
-                QuestInfo questInfo = QuestInfoParser.parseItem(item, page, true);
+                QuestInfo questInfo = QuestInfoParser.parseItem(item, page, QuestType.MINIQUEST);
                 if (questInfo == null) continue;
 
                 if (questInfo.isTracked()) {
@@ -136,7 +136,7 @@ public class QuestContainerQueries {
 
         if (page == 3) {
             // Last page finished
-            Managers.Quest.updateMiniQuestsFromQuery(newMiniQuests, trackedQuest);
+            Managers.Quest.updateQuestsFromQuery(QuestType.MINIQUEST, newMiniQuests, trackedQuest);
         }
     }
 

@@ -4,12 +4,21 @@
  */
 package com.wynntils.wynn.event;
 
+import com.wynntils.wynn.model.quests.QuestType;
 import net.minecraftforge.eventbus.api.Event;
 
 public abstract class QuestBookReloadedEvent extends Event {
-    public static class QuestsReloaded extends QuestBookReloadedEvent {}
+    public static class QuestsReloaded extends QuestBookReloadedEvent {
+        private final QuestType type;
 
-    public static class MiniQuestsReloaded extends QuestBookReloadedEvent {}
+        public QuestsReloaded(QuestType type) {
+            this.type = type;
+        }
+
+        public QuestType getType() {
+            return type;
+        }
+    }
 
     public static class DialogueHistoryReloaded extends QuestBookReloadedEvent {}
 }

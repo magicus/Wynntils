@@ -27,6 +27,7 @@ import com.wynntils.wynn.event.QuestBookReloadedEvent;
 import com.wynntils.wynn.model.quests.QuestInfo;
 import com.wynntils.wynn.model.quests.QuestSortOrder;
 import com.wynntils.wynn.model.quests.QuestStatus;
+import com.wynntils.wynn.model.quests.QuestType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -152,16 +153,7 @@ public class WynntilsQuestBookScreen extends WynntilsMenuListScreen<QuestInfo, Q
 
     @SubscribeEvent
     public void onQuestsReloaded(QuestBookReloadedEvent.QuestsReloaded event) {
-        if (miniQuestMode) return;
-
-        this.setQuests(getSortedQuests());
-        setTrackingRequested(null);
-        reloadElements();
-    }
-
-    @SubscribeEvent
-    public void onMiniQuestsReloaded(QuestBookReloadedEvent.MiniQuestsReloaded event) {
-        if (!miniQuestMode) return;
+        if (miniQuestMode != event.getType().isMiniQuest()) return;
 
         this.setQuests(getSortedQuests());
         setTrackingRequested(null);
@@ -404,7 +396,8 @@ public class WynntilsQuestBookScreen extends WynntilsMenuListScreen<QuestInfo, Q
     }
 
     private List<QuestInfo> getSortedQuests() {
-        return miniQuestMode ? Managers.Quest.getMiniQuests(questSortOrder) : Managers.Quest.getQuests(questSortOrder);
+        QuestType type = QuestType.fromIsMiniQuestBoolean(miniQuestMode);
+        return Managers.Quest.getQuests(questSortOrder, type);
     }
 
     private void setQuests(List<QuestInfo> quests) {

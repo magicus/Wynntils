@@ -16,6 +16,7 @@ import com.wynntils.wynn.event.QuestBookReloadedEvent;
 import com.wynntils.wynn.event.TrackedQuestUpdateEvent;
 import com.wynntils.wynn.event.WorldStateEvent;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,8 +31,8 @@ public final class QuestManager extends Manager {
     private static final DialogueHistoryQueries DIALOGUE_HISTORY_QUERIES = new DialogueHistoryQueries();
     public static final String MINI_QUEST_PREFIX = "Mini-Quest - ";
 
-    private List<QuestInfo> quests = List.of();
-    private List<QuestInfo> miniQuests = List.of();
+    private Map<QuestType, List<QuestInfo>> quests =
+            new EnumMap<>(Map.of(QuestType.NORMAL, List.of(), QuestType.MINIQUEST, List.of()));
     private List<List<String>> dialogueHistory = List.of();
     private QuestInfo trackedQuest = null;
     private String afterRescanName;
@@ -51,8 +52,8 @@ public final class QuestManager extends Manager {
     }
 
     private void reset() {
-        quests = List.of();
-        miniQuests = List.of();
+        quests.put(QuestType.NORMAL, List.of());
+        quests.put(QuestType.MINIQUEST, List.of());
         dialogueHistory = List.of();
         trackedQuest = null;
         afterRescanName = null;
@@ -73,12 +74,8 @@ public final class QuestManager extends Manager {
         DIALOGUE_HISTORY_QUERIES.scanDialogueHistory();
     }
 
-    public List<QuestInfo> getQuests(QuestSortOrder sortOrder) {
-        return sortQuestInfoList(sortOrder, quests);
-    }
-
-    public List<QuestInfo> getMiniQuests(QuestSortOrder sortOrder) {
-        return sortQuestInfoList(sortOrder, miniQuests);
+    public List<QuestInfo> getQuests(QuestSortOrder sortOrder, QuestType type) {
+        return sortQuestInfoList(sortOrder, quests.get(type));
     }
 
     private List<QuestInfo> sortQuestInfoList(QuestSortOrder sortOrder, List<QuestInfo> questList) {
@@ -177,21 +174,20 @@ public final class QuestManager extends Manager {
     }
 
     private Optional<QuestInfo> getQuestInfoFromName(String name) {
-        List<QuestInfo> questInfoList = name.startsWith(MINI_QUEST_PREFIX) ? miniQuests : quests;
+        QuestType type = QuestType.fromName(name);
 
-        return questInfoList.stream()
+        return quests.get(type).stream()
                 .filter(quest -> quest.getQuest().getName().equals(stripPrefix(name)))
                 .findFirst();
     }
 
     private boolean updateAfterRescan(String name, String nextTask) {
-        boolean isMiniQuest = name.startsWith(MINI_QUEST_PREFIX);
-        List<QuestInfo> questInfoList = isMiniQuest ? miniQuests : quests;
+        QuestType type = QuestType.fromName(name);
 
-        if (questInfoList.isEmpty()) {
+        if (quests.get(type).isEmpty()) {
             afterRescanTask = nextTask;
             afterRescanName = stripPrefix(name);
-            rescanQuestBook(!isMiniQuest, isMiniQuest);
+            rescanQuestBook(!type.isMiniQuest(), type.isMiniQuest());
             return true;
         }
 
@@ -202,16 +198,10 @@ public final class QuestManager extends Manager {
         return StringUtils.replaceOnce(name, MINI_QUEST_PREFIX, "");
     }
 
-    protected void updateQuestsFromQuery(List<QuestInfo> newQuests, QuestInfo trackedQuest) {
-        quests = newQuests;
+    protected void updateQuestsFromQuery(QuestType type, List<QuestInfo> newQuests, QuestInfo trackedQuest) {
+        quests.put(type, newQuests);
         maybeUpdateTrackedQuest(trackedQuest);
-        WynntilsMod.postEvent(new QuestBookReloadedEvent.QuestsReloaded());
-    }
-
-    protected void updateMiniQuestsFromQuery(List<QuestInfo> newMiniQuests, QuestInfo trackedQuest) {
-        miniQuests = newMiniQuests;
-        maybeUpdateTrackedQuest(trackedQuest);
-        WynntilsMod.postEvent(new QuestBookReloadedEvent.MiniQuestsReloaded());
+        WynntilsMod.postEvent(new QuestBookReloadedEvent.QuestsReloaded(type));
     }
 
     private void maybeUpdateTrackedQuest(QuestInfo trackedQuest) {

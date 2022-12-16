@@ -23,7 +23,7 @@ public class QuestInfoParser {
     private static final Pattern LEVEL_MATCHER = Pattern.compile("^§..§r§7 Combat Lv. Min: §r§f(\\d+)$");
     private static final Pattern REQ_MATCHER = Pattern.compile("^§..§r§7 (.*) Lv. Min: §r§f(\\d+)$");
 
-    protected static QuestInfo parseItem(ItemStack item, int pageNumber, boolean isMiniQuest) {
+    protected static QuestInfo parseItem(ItemStack item, int pageNumber, QuestType type) {
         try {
             String name = getQuestName(item);
             if (name == null) return null;
@@ -46,8 +46,7 @@ public class QuestInfoParser {
             String description = getDescription(lore);
             boolean tracked = isQuestTracked(item);
 
-            Quest quest = new Quest(
-                    name, level, QuestType.fromIsMiniQuestBoolean(isMiniQuest), questLength, additionalRequirements);
+            Quest quest = new Quest(name, level, type, questLength, additionalRequirements);
 
             QuestInfo questInfo = new QuestInfo(quest, status, pageNumber, tracked, description);
             return questInfo;

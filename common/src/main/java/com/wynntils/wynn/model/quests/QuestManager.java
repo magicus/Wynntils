@@ -83,16 +83,16 @@ public final class QuestManager extends Manager {
             case LEVEL -> questList.stream()
                     .sorted(Comparator.comparing(QuestInfo::getStatus)
                             .thenComparing(QuestInfo::getSortLevel)
-                            .thenComparing(QuestInfo::getName))
+                            .thenComparing(questInfo -> questInfo.getQuest().getName()))
                     .toList();
             case DISTANCE -> questList.stream()
                     .sorted(Comparator.comparing(QuestInfo::getStatus)
                             .thenComparing(new LocationComparator())
-                            .thenComparing(QuestInfo::getName))
+                            .thenComparing(questInfo -> questInfo.getQuest().getName()))
                     .toList();
             case ALPHABETIC -> questList.stream()
                     .sorted(Comparator.comparing(QuestInfo::getStatus)
-                            .thenComparing(QuestInfo::getName)
+                            .thenComparing(questInfo -> questInfo.getQuest().getName())
                             .thenComparing(QuestInfo::getSortLevel))
                     .toList();
         };
@@ -111,8 +111,8 @@ public final class QuestManager extends Manager {
     }
 
     public void openQuestOnWiki(QuestInfo questInfo) {
-        if (questInfo.isMiniQuest()) {
-            String type = questInfo.getName().split(" ")[0];
+        if (questInfo.getQuest().getType().isMiniQuest()) {
+            String type = questInfo.getQuest().getName().split(" ")[0];
 
             String wikiName = "Quests#" + type + "ing_Posts";
 
@@ -121,7 +121,7 @@ public final class QuestManager extends Manager {
         }
 
         ApiResponse apiResponse =
-                Managers.Net.callApi(UrlId.API_WIKI_QUEST_PAGE_QUERY, Map.of("name", questInfo.getName()));
+                Managers.Net.callApi(UrlId.API_WIKI_QUEST_PAGE_QUERY, Map.of("name", questInfo.getQuest().getName()));
         apiResponse.handleJsonArray(json -> {
             String pageTitle = json.get(0).getAsJsonObject().get("_pageTitle").getAsString();
             Managers.Net.openLink(UrlId.LINK_WIKI_LOOKUP, Map.of("title", pageTitle));
@@ -176,11 +176,11 @@ public final class QuestManager extends Manager {
         if (name.startsWith("Mini-Quest - ")) {
             String shortName = StringUtils.replaceOnce(name, "Mini-Quest - ", "");
             questInfoOpt = Managers.Quest.miniQuests.stream()
-                    .filter(quest -> quest.getName().equals(shortName))
+                    .filter(quest -> quest.getQuest().getName().equals(shortName))
                     .findFirst();
         } else {
             questInfoOpt = Managers.Quest.quests.stream()
-                    .filter(quest -> quest.getName().equals(name))
+                    .filter(quest -> quest.getQuest().getName().equals(name))
                     .findFirst();
         }
         return questInfoOpt;
@@ -221,7 +221,7 @@ public final class QuestManager extends Manager {
 
     private void maybeUpdateTrackedQuest(QuestInfo trackedQuest) {
         if (trackedQuest != this.trackedQuest) {
-            if (trackedQuest != null && trackedQuest.getName().equals(afterRescanName)) {
+            if (trackedQuest != null && trackedQuest.getQuest().getName().equals(afterRescanName)) {
                 // We have stored the current task from last scoreboard update,
                 // now we can finally present it
                 trackedQuest.setNextTask(afterRescanTask);

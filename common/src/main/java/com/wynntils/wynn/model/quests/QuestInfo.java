@@ -20,27 +20,27 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class QuestInfo {
     private static final int NEXT_TASK_MAX_WIDTH = 200;
     private static final Pattern COORDINATE_PATTERN = Pattern.compile(".*\\[(-?\\d+), ?(-?\\d+), ?(-?\\d+)\\].*");
 
     // Quest metadata is forever constant
-    private final String name;
-    private final QuestLength length;
-    private final int level;
-    /** Additional requirements as pairs of <"profession name", minLevel> */
-    private final List<Pair<String, Integer>> additionalRequirements;
-
-    private final boolean isMiniQuest;
-    private final int pageNumber;
+    private final Quest quest;
 
     // Quest progress can change over time
     private QuestStatus status;
-    private String nextTask;
+    private final int pageNumber;
     private boolean tracked;
+    private String nextTask;
+
+    protected QuestInfo(Quest quest, QuestStatus status, int pageNumber, boolean tracked, String nextTask) {
+        this.quest = quest;
+        this.status = status;
+        this.pageNumber = pageNumber;
+        this.tracked = tracked;
+        this.nextTask = nextTask;
+    }
 
     protected QuestInfo(
             String name,
@@ -52,19 +52,20 @@ public class QuestInfo {
             boolean isMiniQuest,
             int pageNumber,
             boolean tracked) {
-        this.name = name;
-        this.status = status;
-        this.length = length;
-        this.level = level;
-        this.nextTask = nextTask;
-        this.additionalRequirements = additionalRequirements;
-        this.isMiniQuest = isMiniQuest;
-        this.pageNumber = pageNumber;
-        this.tracked = tracked;
+        this(
+                new Quest(
+                        name,
+                        level,
+                        Quest.QuestType.fromIsMiniQuestBoolean(isMiniQuest),
+                        length,
+                        additionalRequirements),
+                status,
+                pageNumber, tracked, nextTask
+        );
     }
 
-    public String getName() {
-        return name;
+    public Quest getQuest() {
+        return quest;
     }
 
     public QuestStatus getStatus() {
@@ -85,18 +86,10 @@ public class QuestInfo {
                 Integer.parseInt(matcher.group(3))));
     }
 
-    public QuestLength getLength() {
-        return length;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
     public int getSortLevel() {
-        return !isMiniQuest || additionalRequirements.isEmpty()
-                ? level
-                : additionalRequirements.get(0).b();
+        if (quest.getType().isMiniQuest() || quest.getAdditionalRequirements().isEmpty()) return quest.getLevel();
+
+        return quest.getAdditionalRequirements().get(0).b();
     }
 
     public String getNextTask() {
@@ -108,7 +101,7 @@ public class QuestInfo {
     }
 
     public List<Pair<String, Integer>> getAdditionalRequirements() {
-        return additionalRequirements;
+        return getQuest().getAdditionalRequirements();
     }
 
     public int getPageNumber() {
@@ -119,64 +112,41 @@ public class QuestInfo {
         return tracked;
     }
 
-    public boolean isMiniQuest() {
-        return isMiniQuest;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || (!(o instanceof QuestInfo questInfo))) return false;
 
-        QuestInfo questInfo = (QuestInfo) o;
-
-        // Consider it the same quest just based on "constant" aspects of the quest
-        return new EqualsBuilder()
-                .append(level, questInfo.level)
-                .append(isMiniQuest, questInfo.isMiniQuest)
-                .append(name, questInfo.name)
-                .append(length, questInfo.length)
-                .isEquals();
+        // Consider it the same if the base quest is the same
+        return this.quest.equals(questInfo.quest);
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(name)
-                .append(length)
-                .append(level)
-                .append(isMiniQuest)
-                .toHashCode();
+        return quest.hashCode();
     }
 
     @Override
     public String toString() {
-        return "QuestInfo[" + "name=\""
-                + name + "\", " + "isMiniQuest="
-                + isMiniQuest + ", " + "status="
-                + status + ", " + "length="
-                + length + ", " + "minLevel="
-                + level + ", " + "nextTask=\""
-                + nextTask + "\", " + "additionalRequirements="
-                + additionalRequirements + "]";
+        return "QuestInfo[" + "quest=" + quest + ", " + "status=" + status + ", " + "nextTask=\"" + nextTask + "]";
     }
 
     public static List<Component> generateTooltipForQuest(QuestInfo questInfo) {
         List<Component> tooltipLines = new ArrayList<>();
 
-        tooltipLines.add(new TextComponent(questInfo.getName())
+        tooltipLines.add(new TextComponent(questInfo.getQuest().getName())
                 .withStyle(ChatFormatting.BOLD)
                 .withStyle(ChatFormatting.WHITE));
         tooltipLines.add(questInfo.getStatus().getQuestBookComponent());
         tooltipLines.add(new TextComponent(""));
         // We always parse level as one, so check if this mini-quest does not have a min combat level
-        if (!questInfo.isMiniQuest || questInfo.additionalRequirements.isEmpty()) {
-            tooltipLines.add((Managers.Character.getCharacterInfo().getLevel() >= questInfo.getLevel()
+        if (!questInfo.getQuest().getType().isMiniQuest() || questInfo.getAdditionalRequirements().isEmpty()) {
+            tooltipLines.add((Managers.Character.getCharacterInfo().getLevel() >= questInfo.getQuest().getLevel()
                             ? new TextComponent("✔").withStyle(ChatFormatting.GREEN)
                             : new TextComponent("✖").withStyle(ChatFormatting.RED))
                     .append(new TextComponent(" Combat Lv. Min: ").withStyle(ChatFormatting.GRAY))
-                    .append(new TextComponent(String.valueOf(questInfo.getLevel())).withStyle(ChatFormatting.WHITE)));
+                    .append(new TextComponent(String.valueOf(questInfo.getQuest().getLevel())).withStyle(ChatFormatting.WHITE)));
         }
 
         for (Pair<String, Integer> additionalRequirement : questInfo.getAdditionalRequirements()) {
@@ -197,7 +167,7 @@ public class QuestInfo {
                 .withStyle(ChatFormatting.GREEN)
                 .append(new TextComponent(" Length: ").withStyle(ChatFormatting.GRAY))
                 .append(new TextComponent(StringUtils.capitalizeFirst(
-                                questInfo.getLength().toString().toLowerCase(Locale.ROOT)))
+                                questInfo.getQuest().getLength().toString().toLowerCase(Locale.ROOT)))
                         .withStyle(ChatFormatting.WHITE)));
 
         if (questInfo.getStatus() != QuestStatus.COMPLETED) {

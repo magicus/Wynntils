@@ -53,7 +53,7 @@ public class QuestButton extends AbstractButton {
                 .renderText(
                         poseStack,
                         StringUtils.getMaxFittingText(
-                                questInfo.getName(),
+                                questInfo.getQuest().getName(),
                                 maxTextWidth,
                                 FontRenderer.getInstance().getFont()),
                         this.x + 14,

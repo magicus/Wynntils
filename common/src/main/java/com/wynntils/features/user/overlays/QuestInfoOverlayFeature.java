@@ -146,7 +146,7 @@ public class QuestInfoOverlayFeature extends UserFeature {
                 return;
             }
 
-            toRender.get(1).setText(trackedQuest.getName());
+            toRender.get(1).setText(trackedQuest.getQuest().getName());
             toRender.get(2).setText(trackedQuest.getNextTask());
 
             FontRenderer.getInstance()

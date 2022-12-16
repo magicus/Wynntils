@@ -150,7 +150,7 @@ public class QuestContainerQueries {
                 .useItemInHotbar(InventoryUtils.QUEST_BOOK_SLOT_NUM)
                 .matchTitle(Managers.Quest.getQuestBookTitle(1));
 
-        if (questInfo.isMiniQuest()) {
+        if (questInfo.getQuest().getType().isMiniQuest()) {
             queryBuilder.processContainer(c -> {}).clickOnSlot(MINI_QUESTS_SLOT).matchTitle(getMiniQuestBookTitle(1));
         }
 
@@ -179,7 +179,7 @@ public class QuestContainerQueries {
                 ItemStack item = container.items().get(slot);
 
                 String questName = QuestInfoParser.getQuestName(item);
-                if (Objects.equals(questName, questInfo.getName())) {
+                if (Objects.equals(questName, questInfo.getQuest().getName())) {
                     ContainerUtils.clickOnSlot(
                             slot, container.containerId(), GLFW.GLFW_MOUSE_BUTTON_LEFT, container.items());
                     return;

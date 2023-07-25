@@ -124,7 +124,7 @@ public final class SeaskipperModel extends Model {
     }
 
     private void loadSeaskipperPois() {
-        Download dl = Managers.Net.download(UrlId.DATA_STATIC_SEASKIPPER_DESTINATIONS);
+        Download dl = Managers.Net.download(UrlId.DATA_STATIC_SEASKIPPER_LOCATIONS);
         dl.handleReader(reader -> {
             Type type = new TypeToken<ArrayList<SeaskipperProfile>>() {}.getType();
             List<SeaskipperProfile> seaskipperProfiles = WynntilsMod.GSON.fromJson(reader, type);

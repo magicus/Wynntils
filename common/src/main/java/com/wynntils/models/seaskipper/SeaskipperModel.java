@@ -14,148 +14,151 @@ import com.wynntils.core.net.UrlId;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.ContainerSetSlotEvent;
 import com.wynntils.mc.event.MenuEvent;
-import com.wynntils.models.items.ItemModel;
+import com.wynntils.models.containers.ContainerModel;
 import com.wynntils.models.items.items.gui.SeaskipperDestinationItem;
-import com.wynntils.models.map.pois.SeaskipperDestinationPoi;
-import com.wynntils.models.seaskipper.type.SeaskipperDestination;
-import com.wynntils.models.seaskipper.type.SeaskipperDestinationProfile;
-import com.wynntils.screens.maps.SeaskipperDepartureBoardScreen;
-import com.wynntils.screens.maps.SeaskipperMapScreen;
+import com.wynntils.models.map.pois.SeaskipperPoi;
+import com.wynntils.models.seaskipper.type.SeaskipperTravel;
+import com.wynntils.utils.mc.ComponentUtils;
 import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.wynn.ContainerUtils;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
 
 public final class SeaskipperModel extends Model {
     private static final StyledText OAK_BOAT_NAME = StyledText.fromString("§bOak Boat");
 
-    private List<SeaskipperDestination> allDestinations = new ArrayList<>();
-    private List<SeaskipperDestination> availableDestinations = new ArrayList<>();
+    private final Map<String, SeaskipperPoi> allSeaskipperPois = new HashMap<>();
 
+    private int underlyingContainerId = -2;
     private int boatSlot;
-    private int containerId = -2;
+    private SeaskipperPoi currentPoi;
+    private List<SeaskipperTravel> currentDestinations = new ArrayList<>();
 
-    public SeaskipperModel(ItemModel itemModel) {
-        super(List.of(itemModel));
+    public SeaskipperModel(ContainerModel containerModel) {
+        super(List.of(containerModel));
 
-        reloadData();
-    }
-
-    @Override
-    public void reloadData() {
         loadSeaskipperPois();
     }
 
     @SubscribeEvent
     public void onMenuOpened(MenuEvent.MenuOpenedEvent event) {
-        if (!Models.Container.isSeaskipper(event.getTitle())) return;
-
-        containerId = event.getContainerId();
-        availableDestinations = new ArrayList<>();
+        if (Models.Container.isSeaskipper(ComponentUtils.getUnformatted(event.getTitle()))) {
+            underlyingContainerId = event.getContainerId();
+            currentDestinations.clear();
+            currentPoi = findCurrentPoi();
+        }
     }
 
     @SubscribeEvent
-    public void onSetSlot(ContainerSetSlotEvent.Post event) {
-        if (event.getContainerId() != containerId) return;
-
-        if (StyledText.fromComponent(event.getItemStack().getHoverName()).equals(OAK_BOAT_NAME)) {
-            boatSlot = event.getSlot();
-            return;
-        }
-
-        Optional<SeaskipperDestinationItem> optionalItem =
-                Models.Item.asWynnItem(event.getItemStack(), SeaskipperDestinationItem.class);
-
-        if (optionalItem.isEmpty()) return;
-
-        SeaskipperDestinationItem item = optionalItem.get();
-
-        Optional<SeaskipperDestination> destinationOptional = allDestinations.stream()
-                .filter(profile -> profile.profile().destination().equals(item.getDestination()))
-                .findFirst();
-
-        if (destinationOptional.isEmpty()) {
-            WynntilsMod.warn("Could not find profile for destination: " + item.getDestination());
-            return;
-        }
-
-        SeaskipperDestinationProfile profile = destinationOptional.get().profile();
-
-        availableDestinations.add(new SeaskipperDestination(profile, item, event.getSlot()));
-
-        // We added a new destination, reload the map
-        // (This reloads the pois for every item parsed, but performance is not an issue here)
-        if (McUtils.mc().screen instanceof SeaskipperMapScreen seaskipperMapScreen) {
-            seaskipperMapScreen.reloadDestinationPois();
-        } else if (McUtils.mc().screen instanceof SeaskipperDepartureBoardScreen seaskipperDepartureBoardScreen) {
-            seaskipperDepartureBoardScreen.reloadDestinationPois();
-        }
+    public void onMenuClosed(MenuEvent.MenuClosedEvent event) {
+        underlyingContainerId = -2;
     }
 
-    public List<SeaskipperDestinationPoi> getPois(boolean includeAll) {
-        List<SeaskipperDestinationPoi> pois = new ArrayList<>();
+    @SubscribeEvent
+    public void onSetSlot(ContainerSetSlotEvent event) {
+        if (event.getContainerId() != underlyingContainerId) return;
 
-        for (SeaskipperDestination destination : availableDestinations) {
-            pois.add(new SeaskipperDestinationPoi(destination));
+        if (StyledText.fromComponent(event.getItemStack().getHoverName()).equals(OAK_BOAT_NAME)) {
+            this.boatSlot = event.getSlot();
+            return;
         }
 
-        // Include the destination we are currently at
-        allDestinations.stream()
-                .filter(SeaskipperDestination::isPlayerInside)
-                .findFirst()
-                .ifPresent(profile -> pois.add(new SeaskipperDestinationPoi(profile)));
-
-        if (includeAll) {
-            List<SeaskipperDestination> notAvailableProfiles = allDestinations.stream()
-                    .filter(profile -> pois.stream()
-                            .map(SeaskipperDestinationPoi::getDestination)
-                            .noneMatch(destination -> destination.profile().equals(profile.profile())))
-                    .toList();
-
-            pois.addAll(notAvailableProfiles.stream()
-                    .map(SeaskipperDestinationPoi::new)
-                    .toList());
+        Optional<SeaskipperDestinationItem> destinationItemOpt =
+                Models.Item.asWynnItem(event.getItemStack(), SeaskipperDestinationItem.class);
+        if (destinationItemOpt.isEmpty()) return;
+        SeaskipperDestinationItem destinationItem = destinationItemOpt.get();
+        SeaskipperPoi poi = allSeaskipperPois.get(destinationItem.getDestination());
+        if (poi == null) {
+            WynntilsMod.warn("Unknown Seaskipper destination: " + destinationItem.getDestination());
+            return;
         }
 
-        return pois;
+        currentDestinations.add(new SeaskipperTravel(destinationItem, poi, event.getSlot()));
+    }
+
+    public List<SeaskipperDestinationItem> getDestinations() {
+        return currentDestinations.stream().map(d -> d.destinationItem()).toList();
+    }
+
+    public List<SeaskipperPoi> getAvailableDestinations() {
+        return currentDestinations.stream().map(d -> d.destinationPoi()).toList();
+    }
+
+    public List<SeaskipperPoi> getAllSeaskipperPois() {
+        return allSeaskipperPois.values().stream().toList();
     }
 
     public void purchaseBoat() {
-        ContainerUtils.clickOnSlot(
-                boatSlot,
-                containerId,
-                GLFW.GLFW_MOUSE_BUTTON_LEFT,
-                McUtils.containerMenu().getItems());
+        clickSlot(boatSlot);
     }
 
-    public void purchasePass(SeaskipperDestination destination) {
-        if (destination.slot() == -1) return;
-
-        ContainerUtils.clickOnSlot(
-                destination.slot(),
-                containerId,
-                GLFW.GLFW_MOUSE_BUTTON_LEFT,
-                McUtils.containerMenu().getItems());
+    public SeaskipperPoi getCurrentPoi() {
+        return currentPoi;
     }
 
-    public boolean isProfileLoaded() {
-        return !allDestinations.isEmpty();
+    public void purchasePass(SeaskipperPoi destinationPoi) {
+        Optional<SeaskipperTravel> destination = currentDestinations.stream()
+                .filter(d -> d.destinationPoi().equals(destinationPoi))
+                .findFirst();
+        if (destination.isEmpty()) return;
+
+        clickSlot(destination.get().slot());
+    }
+
+    private void clickSlot(int slot) {
+        AbstractContainerMenu menu = McUtils.player().containerMenu;
+        if (menu.containerId != underlyingContainerId) {
+            WynntilsMod.error("Mismatched container id: " + menu.containerId + " vs " + underlyingContainerId);
+            return;
+        }
+
+        ContainerUtils.clickOnSlot(slot, underlyingContainerId, GLFW.GLFW_MOUSE_BUTTON_LEFT, menu.getItems());
     }
 
     private void loadSeaskipperPois() {
         Download dl = Managers.Net.download(UrlId.DATA_STATIC_SEASKIPPER_DESTINATIONS);
-
         dl.handleReader(reader -> {
-            Type type = new TypeToken<ArrayList<SeaskipperDestinationProfile>>() {}.getType();
-            List<SeaskipperDestinationProfile> profiles = WynntilsMod.GSON.fromJson(reader, type);
+            Type type = new TypeToken<ArrayList<SeaskipperProfile>>() {}.getType();
+            List<SeaskipperProfile> seaskipperProfiles = WynntilsMod.GSON.fromJson(reader, type);
 
-            allDestinations = profiles.stream()
-                    .map(profile -> new SeaskipperDestination(profile, null, -1))
-                    .toList();
+            for (SeaskipperProfile profile : seaskipperProfiles) {
+                allSeaskipperPois.put(
+                        profile.destination,
+                        new SeaskipperPoi(
+                                profile.destination,
+                                profile.combatLevel,
+                                profile.startX,
+                                profile.startZ,
+                                profile.endX,
+                                profile.endZ));
+            }
         });
+    }
+
+    private SeaskipperPoi findCurrentPoi() {
+        for (SeaskipperPoi poi : allSeaskipperPois.values()) {
+            if (poi.isPlayerInside()) {
+                return poi;
+            }
+        }
+
+        return null;
+    }
+
+    private static final class SeaskipperProfile {
+        String destination;
+        int combatLevel;
+        int startX;
+        int startZ;
+        int endX;
+        int endZ;
     }
 }

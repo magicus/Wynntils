@@ -41,13 +41,15 @@ public class TokenModel extends Model {
             Pattern.compile("^§2Floormaster \\[Floor (\\d+), Level (\\d+)\\]$");
     private static final Pattern HIVE_GATEKEEPER_NAME_PATTERN = Pattern.compile("^§2(.*) Catalyst Collector (\\d+)$");
 
-    private static final Pattern TOKEN_PATTERN = Pattern.compile("^§a(\\d+)§2/(\\d+)(?:§r)?$");
-    private static final Pattern TYPE_PATTERN = Pattern.compile("^§7Get §[e6]\\[(?:(\\d+) )?(.*)\\]$");
+    private static final Pattern TOKEN_COUNT_PATTERN = Pattern.compile("^§a(\\d+)§2/(\\d+)$");
+    private static final Pattern KILL_COUNT_PATTERN = Pattern.compile("^§2\\[§a(\\d+)§2/(\\d+)\\]$");
+    private static final Pattern TOKEN_TYPE_PATTERN = Pattern.compile("^§7Get §[e6]\\[(?:(\\d+) )?(.*)\\]$");
+    private static final Pattern KILL_TYPE_PATTERN = Pattern.compile("^§7Kill §b(\\d+) (.*)$");
     private static final StyledText VERIFICATION_STRING = StyledText.fromString("§7Right-click to add");
 
     private final Map<Integer, TokenGatekeeper> activeGatekeepers = new HashMap<>();
     private final Map<TokenGatekeeper, TokenInventoryWatcher> inventoryWatchers = new HashMap<>();
-    private final TimedSet<BakingTokenGatekeeper> bakingGatekeepers = new TimedSet<>(5, TimeUnit.SECONDS, true);
+    private final TimedSet<BakingTokenGatekeeper> bakingGatekeepers = new TimedSet<>(500, TimeUnit.SECONDS, true);
     private final Map<Integer, TokenGatekeeper> invisibleGatekeepers = new HashMap<>();
 
     public TokenModel() {
@@ -81,50 +83,45 @@ public class TokenModel extends Model {
 
         StyledText name = event.getName();
 
-        Matcher typeMatcher = name.getMatcher(TYPE_PATTERN);
-        if (typeMatcher.matches()) {
-            String countString = typeMatcher.group(1);
+        Matcher tokenTypeMatcher = name.getMatcher(TOKEN_TYPE_PATTERN);
+        if (tokenTypeMatcher.matches()) {
+            String countString = tokenTypeMatcher.group(1);
             int max = countString != null ? Integer.parseInt(countString) : 1;
-            StyledText type = StyledText.fromString(typeMatcher.group(2));
+            StyledText type = StyledText.fromString(tokenTypeMatcher.group(2));
 
-            BakingTokenGatekeeper baking = getBaking(event.getEntity().position());
-            baking.type = type;
-            // If the gatekeeper requires only a single item, the token line might be
-            // missing. If so, use the type line as entity instead
-            baking.typeMax = max;
-            if (baking.valueEntityId == 0) {
-                baking.valueEntityId = event.getEntity().getId();
-            }
-            checkAndPromoteBaking();
+            bakeTypeAndMax(event, max, type);
             return;
         }
 
-        Matcher tokensMatcher = name.getMatcher(TOKEN_PATTERN);
-        if (tokensMatcher.matches()) {
-            CappedValue tokens =
-                    new CappedValue(Integer.parseInt(tokensMatcher.group(1)), Integer.parseInt(tokensMatcher.group(2)));
+        Matcher killTypeMatcher = name.getMatcher(KILL_TYPE_PATTERN);
+        if (killTypeMatcher.matches()) {
+            int max = Integer.parseInt(killTypeMatcher.group(1));
+            StyledText type = StyledText.fromString(killTypeMatcher.group(2));
 
-            int id = event.getEntity().getId();
-            TokenGatekeeper gatekeeper = activeGatekeepers.get(id);
-            if (gatekeeper != null) {
-                // Update active gatekeeper
-                gatekeeper.setDeposited(tokens);
-                WynntilsMod.postEvent(new TokenGatekeeperEvent.Deposited(gatekeeper));
-                return;
-            }
+            bakeTypeAndMax(event, max, type);
 
-            TokenGatekeeper invisibleGatekeeper = invisibleGatekeepers.get(id);
-            if (invisibleGatekeeper != null) {
-                // We need to keep invisible gatekeepers up to date if they suddenly become visible
-                invisibleGatekeeper.setDeposited(tokens);
-                return;
-            }
-
-            // Create new baking gatekeeper
+            // For kill style gatekeepers, we mark them as confirmed from the start
             BakingTokenGatekeeper baking = getBaking(event.getEntity().position());
-            baking.value = tokens;
-            baking.valueEntityId = event.getEntity().getId();
-            checkAndPromoteBaking();
+            baking.confirmed = true;
+
+            return;
+        }
+
+        Matcher tokenCountMatcher = name.getMatcher(TOKEN_COUNT_PATTERN);
+        if (tokenCountMatcher.matches()) {
+            CappedValue tokens =
+                    new CappedValue(Integer.parseInt(tokenCountMatcher.group(1)), Integer.parseInt(tokenCountMatcher.group(2)));
+
+            bakeTokenCount(event, tokens);
+            return;
+        }
+
+        Matcher killCountMatcher = name.getMatcher(KILL_COUNT_PATTERN);
+        if (killCountMatcher.matches()) {
+            CappedValue tokens = new CappedValue(
+                    Integer.parseInt(killCountMatcher.group(1)), Integer.parseInt(killCountMatcher.group(2)));
+
+            bakeTokenCount(event, tokens);
             return;
         }
 
@@ -164,6 +161,45 @@ public class TokenModel extends Model {
             addGatekeeper(
                     event.getEntity().getId(), new TokenGatekeeper(tokenName, location, new CappedValue(0, maxTokens)));
         }
+    }
+
+    private void bakeTypeAndMax(EntityLabelChangedEvent event, int max, StyledText type) {
+        BakingTokenGatekeeper baking = getBaking(event.getEntity().position());
+        baking.type = type;
+        // If the gatekeeper requires only a single item, the token line might be
+        // missing. If so, use the type line as entity instead
+        baking.typeMax = max;
+        System.out.println("New MAX for id: " + event.getEntity().getId() + " at " + max);
+
+        if (baking.valueEntityId == 0) {
+            baking.valueEntityId = event.getEntity().getId();
+        }
+        checkAndPromoteBaking();
+    }
+
+    private void bakeTokenCount(EntityLabelChangedEvent event, CappedValue tokens) {
+        int id = event.getEntity().getId();
+        System.out.println("New count for id: " + id + " with " + tokens);
+        TokenGatekeeper gatekeeper = activeGatekeepers.get(id);
+        if (gatekeeper != null) {
+            // Update active gatekeeper
+            gatekeeper.setDeposited(tokens);
+            WynntilsMod.postEvent(new TokenGatekeeperEvent.Deposited(gatekeeper));
+            return;
+        }
+
+        TokenGatekeeper invisibleGatekeeper = invisibleGatekeepers.get(id);
+        if (invisibleGatekeeper != null) {
+            // We need to keep invisible gatekeepers up to date if they suddenly become visible
+            invisibleGatekeeper.setDeposited(tokens);
+            return;
+        }
+
+        // Create new baking gatekeeper
+        BakingTokenGatekeeper baking = getBaking(event.getEntity().position());
+        baking.value = tokens;
+        baking.valueEntityId = event.getEntity().getId();
+        checkAndPromoteBaking();
     }
 
     @SubscribeEvent
@@ -214,6 +250,7 @@ public class TokenModel extends Model {
     }
 
     private void addGatekeeper(int entityId, TokenGatekeeper gatekeeper) {
+        System.out.println("adding new gatekeeper: " + entityId + " with " + gatekeeper.getDeposited());
         TokenInventoryWatcher watcher = new TokenInventoryWatcher(gatekeeper);
         inventoryWatchers.put(gatekeeper, watcher);
         Models.PlayerInventory.registerWatcher(watcher);
@@ -223,6 +260,7 @@ public class TokenModel extends Model {
     }
 
     private void removeGatekeeper(int entityId, TokenGatekeeper gatekeeper) {
+        System.out.println("REMOVING gatekeeper: " + entityId + " with " + gatekeeper.getDeposited());
         activeGatekeepers.remove(entityId);
         InventoryWatcher watcher = inventoryWatchers.get(gatekeeper);
         Models.PlayerInventory.unregisterWatcher(watcher);

@@ -30,7 +30,7 @@ import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 
 public class TextInputBoxWidget extends AbstractWidget {
-    private static final int CURSOR_PADDING = 3;
+    private static final int CURSOR_PADDING = 30;
     private static final int CURSOR_TICK = 350;
 
     private final Consumer<String> onUpdateConsumer;

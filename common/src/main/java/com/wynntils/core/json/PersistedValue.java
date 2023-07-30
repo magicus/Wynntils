@@ -14,4 +14,11 @@ public abstract class PersistedValue<T> {
     public T get() {
         return value;
     }
+
+    public void store(T value) {
+        this.value = value;
+        touched();
+    }
+
+    public abstract void touched();
 }

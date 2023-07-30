@@ -78,10 +78,8 @@ public class GammabrightFeature extends Feature {
     }
 
     private void toggleGammaBright() {
-        gammabrightEnabled.updateConfig(!gammabrightEnabled.get());
+        gammabrightEnabled.store(!gammabrightEnabled.get());
         applyGammabright();
-
-        gammabrightEnabled.touched();
     }
 
     private void resetGamma() {

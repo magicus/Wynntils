@@ -12,7 +12,6 @@ import com.wynntils.core.WynntilsMod;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.config.AbstractConfigurable;
 import com.wynntils.core.config.Config;
-import com.wynntils.core.config.ConfigHolder;
 import com.wynntils.core.config.HiddenConfig;
 import com.wynntils.core.config.RegisterConfig;
 import com.wynntils.core.consumers.Translatable;
@@ -84,14 +83,14 @@ public abstract class Overlay extends AbstractConfigurable implements Translatab
             }
         }
 
-        callOnConfigUpdate(configHolder.getConfigHolder());
+        callOnConfigUpdate(configHolder);
     }
 
-    protected abstract void onConfigUpdate(ConfigHolder<?> configHolder);
+    protected abstract void onConfigUpdate(Config<?> config);
 
-    protected void callOnConfigUpdate(ConfigHolder<?> configHolder) {
+    protected void callOnConfigUpdate(Config<?> config) {
         try {
-            onConfigUpdate(configHolder);
+            onConfigUpdate(config);
         } catch (Throwable t) {
             // We can't stop disabled overlays from getting config updates, so if it crashes again,
             // just ignore it

@@ -73,8 +73,8 @@ public abstract class Overlay extends AbstractConfigurable implements Translatab
     @Override
     public final void updateConfigOption(Config<?> configHolder) {
         // if user toggle was changed, enable/disable overlay accordingly
-        if (configHolder.getConfigHolder().getFieldName().equals("userEnabled")) {
-            if (configHolder.getConfigHolder().getValue() == Boolean.FALSE) {
+        if (configHolder.getFieldName().equals("userEnabled")) {
+            if (configHolder.getValue() == Boolean.FALSE) {
                 Managers.Overlay.disableOverlay(this);
             } else {
                 // If new state is TRUE or null, try to enable overlay

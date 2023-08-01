@@ -34,13 +34,12 @@ public class EnumNamingUpfixer implements ConfigUpfixer {
     @Override
     public boolean apply(JsonObject configObject, Set<Config<?>> configHolders) {
         for (Config<?> config : configHolders) {
-            String jsonName = config.getConfigHolder().getJsonName();
+            String jsonName = config.getJsonName();
             if (!configObject.has(jsonName)) continue;
 
             JsonElement origJson = configObject.get(jsonName);
-            Object value = GSON.fromJson(origJson, config.getConfigHolder().getType());
-            JsonElement newJson = Managers.Json.GSON.toJsonTree(
-                    value, config.getConfigHolder().getType());
+            Object value = GSON.fromJson(origJson, config.getType());
+            JsonElement newJson = Managers.Json.GSON.toJsonTree(value, config.getType());
 
             if (!(newJson.toString().equals(origJson.toString()))) {
                 configObject.add(jsonName, newJson);

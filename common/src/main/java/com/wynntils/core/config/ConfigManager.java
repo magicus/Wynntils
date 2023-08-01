@@ -135,17 +135,16 @@ public final class ConfigManager extends Manager {
 
         for (Config<?> holder : getConfigHolderList()) {
             // option hasn't been saved to config
-            if (!configObject.has(holder.getConfigHolder().getJsonName())) {
+            if (!configObject.has(holder.getJsonName())) {
                 if (resetIfNotFound) {
-                    holder.getConfigHolder().reset();
+                    holder.reset();
                 }
                 continue;
             }
 
             // read value and update option
-            JsonElement holderJson = configObject.get(holder.getConfigHolder().getJsonName());
-            Object value = Managers.Json.GSON.fromJson(
-                    holderJson, holder.getConfigHolder().getType());
+            JsonElement holderJson = configObject.get(holder.getJsonName());
+            Object value = Managers.Json.GSON.fromJson(holderJson, holder.getType());
             holder.restoreValue(value);
         }
 
@@ -173,11 +172,11 @@ public final class ConfigManager extends Manager {
         // create json object, with entry for each option of each container
         JsonObject holderJson = new JsonObject();
         for (Config<?> holder : getConfigHolderList()) {
-            if (!holder.getConfigHolder().valueChanged()) continue; // only save options that have been set by the user
-            Object value = holder.getConfigHolder().getValue();
+            if (!holder.valueChanged()) continue; // only save options that have been set by the user
+            Object value = holder.getValue();
 
             JsonElement holderElement = Managers.Json.GSON.toJsonTree(value);
-            holderJson.add(holder.getConfigHolder().getJsonName(), holderElement);
+            holderJson.add(holder.getJsonName(), holderElement);
         }
 
         // Also save upfixer data
@@ -206,10 +205,10 @@ public final class ConfigManager extends Manager {
         // create json object, with entry for each option of each container
         JsonObject holderJson = new JsonObject();
         for (Config<?> holder : getConfigHolderList()) {
-            Object value = holder.getConfigHolder().getDefaultValue();
+            Object value = holder.getDefaultValue();
 
             JsonElement holderElement = Managers.Json.GSON.toJsonTree(value);
-            holderJson.add(holder.getConfigHolder().getJsonName(), holderElement);
+            holderJson.add(holder.getJsonName(), holderElement);
         }
 
         WynntilsMod.info("Creating default config file with " + holderJson.size() + " config values.");
@@ -256,24 +255,18 @@ public final class ConfigManager extends Manager {
             configObj.createConfigHolder(parent, configField, configInfo);
 
             if (WynntilsMod.isDevelopmentEnvironment()) {
-                if (configObj.getConfigHolder().isVisible()) {
-                    if (configObj.getConfigHolder().getDisplayName().startsWith("feature.wynntils.")) {
-                        WynntilsMod.error("Config displayName i18n is missing for "
-                                + configObj.getConfigHolder().getDisplayName());
-                        throw new AssertionError("Missing i18n for "
-                                + configObj.getConfigHolder().getDisplayName());
+                if (configObj.isVisible()) {
+                    if (configObj.getDisplayName().startsWith("feature.wynntils.")) {
+                        WynntilsMod.error("Config displayName i18n is missing for " + configObj.getDisplayName());
+                        throw new AssertionError("Missing i18n for " + configObj.getDisplayName());
                     }
-                    if (configObj.getConfigHolder().getDescription().startsWith("feature.wynntils.")) {
-                        WynntilsMod.error("Config description i18n is missing for "
-                                + configObj.getConfigHolder().getDescription());
-                        throw new AssertionError("Missing i18n for "
-                                + configObj.getConfigHolder().getDescription());
+                    if (configObj.getDescription().startsWith("feature.wynntils.")) {
+                        WynntilsMod.error("Config description i18n is missing for " + configObj.getDescription());
+                        throw new AssertionError("Missing i18n for " + configObj.getDescription());
                     }
-                    if (configObj.getConfigHolder().getDescription().isEmpty()) {
-                        WynntilsMod.error("Config description is empty for "
-                                + configObj.getConfigHolder().getDisplayName());
-                        throw new AssertionError("Missing i18n for "
-                                + configObj.getConfigHolder().getDisplayName());
+                    if (configObj.getDescription().isEmpty()) {
+                        WynntilsMod.error("Config description is empty for " + configObj.getDisplayName());
+                        throw new AssertionError("Missing i18n for " + configObj.getDisplayName());
                     }
                 }
             }

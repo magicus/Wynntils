@@ -16,7 +16,7 @@ public class TextInputBoxSettingsWidget<T> extends TextInputBoxWidget {
     protected TextInputBoxSettingsWidget(Config<T> configHolder, TextboxScreen textboxScreen, int width) {
         super(0, 6, width, FontRenderer.getInstance().getFont().lineHeight + 8, null, textboxScreen);
         this.configHolder = configHolder;
-        setTextBoxInput(configHolder.getConfigHolder().getValue().toString());
+        setTextBoxInput(configHolder.getValue().toString());
     }
 
     public TextInputBoxSettingsWidget(Config<T> configHolder, TextboxScreen textboxScreen) {
@@ -25,10 +25,10 @@ public class TextInputBoxSettingsWidget<T> extends TextInputBoxWidget {
 
     @Override
     protected void onUpdate(String text) {
-        T parsedValue = configHolder.getConfigHolder().tryParseStringValue(text);
+        T parsedValue = configHolder.tryParseStringValue(text);
         if (parsedValue != null) {
-            if (!parsedValue.equals(configHolder.getConfigHolder().getValue())) {
-                configHolder.getConfigHolder().setValue(parsedValue);
+            if (!parsedValue.equals(configHolder.getValue())) {
+                configHolder.setValue(parsedValue);
             }
 
             setRenderColor(CommonColors.GREEN);

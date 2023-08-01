@@ -29,12 +29,7 @@ public class ConfigTile extends WynntilsButton {
 
     public ConfigTile(
             int x, int y, int width, int height, WynntilsBookSettingsScreen settingsScreen, Config<?> configHolder) {
-        super(
-                x,
-                y,
-                width,
-                height,
-                Component.literal(configHolder.getConfigHolder().getJsonName()));
+        super(x, y, width, height, Component.literal(configHolder.getJsonName()));
         this.settingsScreen = settingsScreen;
         this.configHolder = configHolder;
         this.configOptionElement = getWidgetFromConfigHolder(configHolder);
@@ -71,9 +66,8 @@ public class ConfigTile extends WynntilsButton {
 
     private void renderDisplayName(PoseStack poseStack) {
         StyledText displayName = settingsScreen.configOptionContains(configHolder)
-                ? StyledText.fromString(ChatFormatting.UNDERLINE
-                        + configHolder.getConfigHolder().getDisplayName())
-                : StyledText.fromString(configHolder.getConfigHolder().getDisplayName());
+                ? StyledText.fromString(ChatFormatting.UNDERLINE + configHolder.getDisplayName())
+                : StyledText.fromString(configHolder.getDisplayName());
         poseStack.pushPose();
         poseStack.scale(0.8f, 0.8f, 0);
         FontRenderer.getInstance()
@@ -130,11 +124,11 @@ public class ConfigTile extends WynntilsButton {
     }
 
     private <E extends Enum<E>> AbstractWidget getWidgetFromConfigHolder(Config<?> configOption) {
-        if (configOption.getConfigHolder().getType().equals(Boolean.class)) {
+        if (configOption.getType().equals(Boolean.class)) {
             return new BooleanSettingsButton((Config<Boolean>) configOption);
-        } else if (configOption.getConfigHolder().isEnum()) {
+        } else if (configOption.isEnum()) {
             return new EnumSettingsButton<>((Config<E>) configOption);
-        } else if (configOption.getConfigHolder().getType().equals(CustomColor.class)) {
+        } else if (configOption.getType().equals(CustomColor.class)) {
             return new CustomColorSettingsButton((Config<CustomColor>) configOption, settingsScreen);
         } else {
             return new TextInputBoxSettingsWidget<>(configOption, settingsScreen);

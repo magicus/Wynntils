@@ -29,7 +29,7 @@ public class HadesFeature extends Feature {
 
     @Override
     protected void onConfigUpdate(Config<?> configHolder) {
-        switch (configHolder.getConfigHolder().getFieldName()) {
+        switch (configHolder.getFieldName()) {
             case "getOtherPlayerInfo" -> {
                 if (getOtherPlayerInfo.get()) {
                     Services.Hades.tryResendWorldData();

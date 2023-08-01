@@ -9,6 +9,7 @@ import com.wynntils.core.consumers.Translatable;
 import com.wynntils.core.json.PersistedValue;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.stream.Stream;
 
 public class Config<T> extends PersistedValue<T> implements Comparable<Config<T>> {
     private ConfigHolder<T> configHolder;
@@ -50,6 +51,70 @@ public class Config<T> extends PersistedValue<T> implements Comparable<Config<T>
 
     @Override
     public int compareTo(Config<T> other) {
-        return getConfigHolder().getJsonName().compareTo(other.getConfigHolder().getJsonName());
+        return getConfigHolder().getJsonName().compareTo(other.getJsonName());
+    }
+
+    public Stream<String> getValidLiterals() {
+        return getConfigHolder().getValidLiterals();
+    }
+
+    public Type getType() {
+        return getConfigHolder().getType();
+    }
+
+    public String getFieldName() {
+        return getConfigHolder().getFieldName();
+    }
+
+    public Configurable getParent() {
+        return getConfigHolder().getParent();
+    }
+
+    public String getJsonName() {
+        return getConfigHolder().getJsonName();
+    }
+
+    public boolean isVisible() {
+        return getConfigHolder().isVisible();
+    }
+
+    public String getDisplayName() {
+        return getConfigHolder().getDisplayName();
+    }
+
+    public String getDescription() {
+        return getConfigHolder().getDescription();
+    }
+
+    public T getValue() {
+        return getConfigHolder().getValue();
+    }
+
+    public String getValueString() {
+        return getConfigHolder().getValueString();
+    }
+
+    public boolean isEnum() {
+        return getConfigHolder().isEnum();
+    }
+
+    public T getDefaultValue() {
+        return getConfigHolder().getDefaultValue();
+    }
+
+    public void setValue(T value) {
+        getConfigHolder().setValue(value);
+    }
+
+    public boolean valueChanged() {
+        return getConfigHolder().valueChanged();
+    }
+
+    public void reset() {
+        getConfigHolder().reset();
+    }
+
+    public T tryParseStringValue(String value) {
+        return getConfigHolder().tryParseStringValue(value);
     }
 }

@@ -273,8 +273,7 @@ public final class OverlayManager extends Manager {
         // Hopefully we have none :)
         for (Overlay overlay : crashedOverlays) {
             overlay.getConfigOptionFromString("userEnabled")
-                    .ifPresent(config ->
-                            ((Config<Boolean>) config).getConfigHolder().setValue(false));
+                    .ifPresent(config -> ((Config<Boolean>) config).setValue(false));
         }
     }
 

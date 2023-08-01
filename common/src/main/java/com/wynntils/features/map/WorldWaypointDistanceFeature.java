@@ -297,17 +297,17 @@ public class WorldWaypointDistanceFeature extends Feature {
     protected void onConfigUpdate(Config<?> unknownConfigHolder) {
         Window window = McUtils.window();
 
-        switch (unknownConfigHolder.getConfigHolder().getFieldName()) {
+        switch (unknownConfigHolder.getFieldName()) {
             case "topBoundingDistance", "bottomBoundingDistance" -> {
                 Config<Float> configHolder = (Config<Float>) unknownConfigHolder;
-                if (configHolder.getConfigHolder().getValue() > window.getGuiScaledHeight() * 0.4f) {
-                    configHolder.getConfigHolder().setValue(window.getGuiScaledHeight() * 0.4f);
+                if (configHolder.getValue() > window.getGuiScaledHeight() * 0.4f) {
+                    configHolder.setValue(window.getGuiScaledHeight() * 0.4f);
                 }
             }
             case "horizontalBoundingDistance" -> {
                 Config<Float> configHolder = (Config<Float>) unknownConfigHolder;
-                if (configHolder.getConfigHolder().getValue() > window.getGuiScaledWidth() * 0.4f) {
-                    configHolder.getConfigHolder().setValue(window.getGuiScaledWidth() * 0.4f);
+                if (configHolder.getValue() > window.getGuiScaledWidth() * 0.4f) {
+                    configHolder.setValue(window.getGuiScaledWidth() * 0.4f);
                 }
             }
         }

@@ -29,24 +29,24 @@ public class ResetButton extends GeneralSettingsButton {
 
     @Override
     protected CustomColor getTextColor() {
-        return configHolder.getConfigHolder().valueChanged() ? CommonColors.WHITE : CommonColors.GRAY;
+        return configHolder.valueChanged() ? CommonColors.WHITE : CommonColors.GRAY;
     }
 
     @Override
     protected CustomColor getBackgroundColor() {
-        return configHolder.getConfigHolder().valueChanged() ? super.getBackgroundColor() : BACKGROUND_COLOR;
+        return configHolder.valueChanged() ? super.getBackgroundColor() : BACKGROUND_COLOR;
     }
 
     @Override
     public void playDownSound(SoundManager handler) {
-        if (!configHolder.getConfigHolder().valueChanged()) return;
+        if (!configHolder.valueChanged()) return;
         super.playDownSound(handler);
     }
 
     @Override
     public void onPress() {
-        if (!configHolder.getConfigHolder().valueChanged()) return;
-        configHolder.getConfigHolder().reset();
+        if (!configHolder.valueChanged()) return;
+        configHolder.reset();
         onClick.run();
     }
 }

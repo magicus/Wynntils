@@ -62,7 +62,7 @@ public class ConfigCommand extends Command {
 
                         return foundFeature
                                 .map(feature -> feature.getVisibleConfigOptions().stream()
-                                        .map(c -> c.getConfigHolder().getFieldName())
+                                        .map(Config::getFieldName)
                                         .iterator())
                                 .orElse(Collections.emptyIterator());
                     },
@@ -93,7 +93,7 @@ public class ConfigCommand extends Command {
 
                         return overlayOptional
                                 .map(overlay -> overlay.getVisibleConfigOptions().stream()
-                                        .map(c -> c.getConfigHolder().getFieldName())
+                                        .map(Config::getFieldName)
                                         .iterator())
                                 .orElse(Collections.emptyIterator());
                     },
@@ -110,7 +110,7 @@ public class ConfigCommand extends Command {
                     return SharedSuggestionProvider.suggest(Stream.of(), builder);
                 }
 
-                return SharedSuggestionProvider.suggest(config.getConfigHolder().getValidLiterals(), builder);
+                return SharedSuggestionProvider.suggest(config.getValidLiterals(), builder);
             };
 
     private static final SuggestionProvider<CommandSourceStack> OVERLAY_CONFIG_VALUE_SUGGESTION_PROVIDER =
@@ -125,7 +125,7 @@ public class ConfigCommand extends Command {
                     return SharedSuggestionProvider.suggest(Stream.of(), builder);
                 }
 
-                return SharedSuggestionProvider.suggest(config.getConfigHolder().getValidLiterals(), builder);
+                return SharedSuggestionProvider.suggest(config.getValidLiterals(), builder);
             };
 
     private static final SuggestionProvider<CommandSourceStack> OVERLAY_GROUP_SUGGESTION_PROVIDER =
@@ -367,7 +367,7 @@ public class ConfigCommand extends Command {
             return 0;
         }
 
-        config.getConfigHolder().reset();
+        config.reset();
 
         Managers.Config.saveConfig();
 
@@ -375,8 +375,7 @@ public class ConfigCommand extends Command {
                 .sendSuccess(
                         Component.literal("Successfully reset ")
                                 .withStyle(ChatFormatting.GREEN)
-                                .append(Component.literal(
-                                                config.getConfigHolder().getDisplayName())
+                                .append(Component.literal(config.getDisplayName())
                                         .withStyle(ChatFormatting.UNDERLINE)
                                         .withStyle(ChatFormatting.YELLOW))
                                 .append(Component.literal(".").withStyle(ChatFormatting.GREEN)),
@@ -392,7 +391,7 @@ public class ConfigCommand extends Command {
         Overlay overlay = getOverlayFromArguments(context, featureName, overlayName);
         if (overlay == null) return 0;
 
-        overlay.getConfigOptions().stream().forEach(c -> c.getConfigHolder().reset());
+        overlay.getConfigOptions().stream().forEach(Config::reset);
 
         Managers.Config.saveConfig();
 
@@ -422,8 +421,8 @@ public class ConfigCommand extends Command {
 
             current.withStyle(style -> style.withClickEvent(new ClickEvent(
                     ClickEvent.Action.SUGGEST_COMMAND,
-                    "/wynntils config set " + featureName + " overlay " + overlayName + " "
-                            + config.getConfigHolder().getFieldName() + " ")));
+                    "/wynntils config set " + featureName + " overlay " + overlayName + " " + config.getFieldName()
+                            + " ")));
 
             response.append(current);
         }
@@ -509,8 +508,7 @@ public class ConfigCommand extends Command {
 
             current.withStyle(style -> style.withClickEvent(new ClickEvent(
                     ClickEvent.Action.SUGGEST_COMMAND,
-                    "/wynntils config set " + featureName + " "
-                            + config.getConfigHolder().getFieldName() + " ")));
+                    "/wynntils config set " + featureName + " " + config.getFieldName() + " ")));
 
             response.append(current);
         }
@@ -551,7 +549,7 @@ public class ConfigCommand extends Command {
         }
 
         String newValue = context.getArgument("newValue", String.class);
-        T parsedValue = config.getConfigHolder().tryParseStringValue(newValue);
+        T parsedValue = config.tryParseStringValue(newValue);
 
         if (parsedValue == null) {
             context.getSource()
@@ -560,8 +558,8 @@ public class ConfigCommand extends Command {
             return 0;
         }
 
-        T oldValue = config.getConfigHolder().getValue();
-        String oldValueString = config.getConfigHolder().getValueString();
+        T oldValue = config.getValue();
+        String oldValueString = config.getValueString();
 
         if (Objects.equals(oldValue, parsedValue)) {
             context.getSource()
@@ -570,8 +568,8 @@ public class ConfigCommand extends Command {
             return 0;
         }
 
-        config.getConfigHolder().setValue(parsedValue);
-        String newValueString = config.getConfigHolder().getValueString();
+        config.setValue(parsedValue);
+        String newValueString = config.getValueString();
 
         Managers.Config.saveConfig();
 
@@ -579,8 +577,7 @@ public class ConfigCommand extends Command {
                 .sendSuccess(
                         Component.literal("Successfully set ")
                                 .withStyle(ChatFormatting.GREEN)
-                                .append(Component.literal(
-                                                config.getConfigHolder().getDisplayName())
+                                .append(Component.literal(config.getDisplayName())
                                         .withStyle(ChatFormatting.UNDERLINE)
                                         .withStyle(ChatFormatting.YELLOW))
                                 .append(Component.literal(" from ").withStyle(ChatFormatting.GREEN))
@@ -607,7 +604,7 @@ public class ConfigCommand extends Command {
             return 0;
         }
 
-        config.getConfigHolder().reset();
+        config.reset();
 
         Managers.Config.saveConfig();
 
@@ -615,8 +612,7 @@ public class ConfigCommand extends Command {
                 .sendSuccess(
                         Component.literal("Successfully reset ")
                                 .withStyle(ChatFormatting.GREEN)
-                                .append(Component.literal(
-                                                config.getConfigHolder().getDisplayName())
+                                .append(Component.literal(config.getDisplayName())
                                         .withStyle(ChatFormatting.UNDERLINE)
                                         .withStyle(ChatFormatting.YELLOW))
                                 .append(Component.literal(".").withStyle(ChatFormatting.GREEN)),
@@ -629,7 +625,7 @@ public class ConfigCommand extends Command {
 
         Feature feature = getFeatureFromArguments(context, featureName);
         if (feature == null) return 0;
-        feature.getVisibleConfigOptions().forEach(c -> c.getConfigHolder().reset());
+        feature.getVisibleConfigOptions().forEach(Config::reset);
 
         Managers.Config.saveConfig();
 
@@ -731,17 +727,16 @@ public class ConfigCommand extends Command {
     }
 
     private MutableComponent getComponentForConfigHolder(Config<?> config) {
-        String configNameString = config.getConfigHolder().getDisplayName();
-        String configTypeString = " (" + ((Class<?>) config.getConfigHolder().getType()).getSimpleName() + ")";
-        String valueString = config.getConfigHolder().getValueString();
+        String configNameString = config.getDisplayName();
+        String configTypeString = " (" + ((Class<?>) config.getType()).getSimpleName() + ")";
+        String valueString = config.getValueString();
 
         return Component.literal("\n - ")
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(configNameString)
                         .withStyle(style -> style.withHoverEvent(new HoverEvent(
                                 HoverEvent.Action.SHOW_TEXT,
-                                Component.literal("Description: "
-                                                + config.getConfigHolder().getDescription())
+                                Component.literal("Description: " + config.getDescription())
                                         .withStyle(ChatFormatting.LIGHT_PURPLE))))
                         .withStyle(ChatFormatting.YELLOW)
                         .append(Component.literal(configTypeString).withStyle(ChatFormatting.WHITE))
@@ -760,14 +755,13 @@ public class ConfigCommand extends Command {
     }
 
     private MutableComponent getSpecificConfigComponent(Config<?> config) {
-        String valueString = config.getConfigHolder().getValueString();
-        String configTypeString = "(" + ((Class<?>) config.getConfigHolder().getType()).getSimpleName() + ")";
+        String valueString = config.getValueString();
+        String configTypeString = "(" + ((Class<?>) config.getType()).getSimpleName() + ")";
 
         MutableComponent response = Component.literal("");
         response.append(Component.literal("Config option: ")
                 .withStyle(ChatFormatting.WHITE)
-                .append(Component.literal(config.getConfigHolder().getDisplayName())
-                        .withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal(config.getDisplayName()).withStyle(ChatFormatting.YELLOW))
                 .append("\n"));
 
         response.append(Component.literal("Value: ")
@@ -778,7 +772,7 @@ public class ConfigCommand extends Command {
                 .append("\n");
         response.append(Component.literal("Description: ")
                         .withStyle(ChatFormatting.WHITE)
-                        .append(Component.literal(config.getConfigHolder().getDescription())))
+                        .append(Component.literal(config.getDescription())))
                 .append("\n");
         return response;
     }

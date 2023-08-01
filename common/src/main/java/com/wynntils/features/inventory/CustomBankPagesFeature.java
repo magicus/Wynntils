@@ -268,7 +268,7 @@ public class CustomBankPagesFeature extends Feature {
 
     @Override
     protected void onConfigUpdate(Config<?> unknownConfigHolder) {
-        String fieldName = unknownConfigHolder.getConfigHolder().getFieldName();
+        String fieldName = unknownConfigHolder.getFieldName();
 
         SearchableContainerType containerType;
         int maxValue;
@@ -293,14 +293,12 @@ public class CustomBankPagesFeature extends Feature {
 
         // If we're still here, we have a string config
         Config<String> configHolder = (Config<String>) unknownConfigHolder;
-        String valueString = configHolder.getConfigHolder().getValue();
+        String valueString = configHolder.getValue();
 
         List<Integer> originalValues = parseStringToDestinations(valueString, containerType);
 
         if (originalValues == null) {
-            configHolder
-                    .getConfigHolder()
-                    .setValue(configHolder.getConfigHolder().getDefaultValue());
+            configHolder.setValue(configHolder.getDefaultValue());
             return;
         }
 
@@ -310,7 +308,7 @@ public class CustomBankPagesFeature extends Feature {
                 newValues.stream().limit(MAX_DESTINATIONS).map(Object::toString).collect(Collectors.joining(","));
 
         if (!formattedConfig.equals(valueString)) {
-            configHolder.getConfigHolder().setValue(formattedConfig);
+            configHolder.setValue(formattedConfig);
         }
     }
 

@@ -25,9 +25,7 @@ public abstract class AbstractConfigurable implements Configurable {
 
     @Override
     public final List<Config<?>> getVisibleConfigOptions() {
-        return configOptions.stream()
-                .filter(c -> c.getConfigHolder().isVisible())
-                .collect(Collectors.toList());
+        return configOptions.stream().filter(Config::isVisible).collect(Collectors.toList());
     }
 
     @Override
@@ -38,7 +36,7 @@ public abstract class AbstractConfigurable implements Configurable {
     @Override
     public final Optional<Config<?>> getConfigOptionFromString(String name) {
         return getConfigOptions().stream()
-                .filter(c -> c.getConfigHolder().getFieldName().equals(name))
+                .filter(c -> c.getFieldName().equals(name))
                 .findFirst();
     }
 

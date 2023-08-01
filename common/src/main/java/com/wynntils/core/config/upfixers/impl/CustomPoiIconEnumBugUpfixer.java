@@ -20,7 +20,7 @@ public class CustomPoiIconEnumBugUpfixer implements ConfigUpfixer {
     @Override
     public boolean apply(JsonObject configObject, Set<Config<?>> configHolders) {
         for (Config<?> configHolder : configHolders) {
-            if (!configHolder.getConfigHolder().getJsonName().equals(POI_LIST_KEY)) continue;
+            if (!configHolder.getJsonName().equals(POI_LIST_KEY)) continue;
 
             JsonElement obj = configObject.get(POI_LIST_KEY);
             if (obj == null) return true;

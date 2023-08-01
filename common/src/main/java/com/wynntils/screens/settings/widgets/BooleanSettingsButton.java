@@ -23,14 +23,13 @@ public class BooleanSettingsButton extends GeneralSettingsButton {
                 50,
                 FontRenderer.getInstance().getFont().lineHeight + 8,
                 getTitle(configHolder),
-                ComponentUtils.wrapTooltips(
-                        List.of(Component.literal(configHolder.getConfigHolder().getDescription())), 150));
+                ComponentUtils.wrapTooltips(List.of(Component.literal(configHolder.getDescription())), 150));
         this.configHolder = configHolder;
     }
 
     @Override
     public void onPress() {
-        configHolder.getConfigHolder().setValue(!isEnabled(configHolder));
+        configHolder.setValue(!isEnabled(configHolder));
         setMessage(getTitle(configHolder));
     }
 
@@ -46,6 +45,6 @@ public class BooleanSettingsButton extends GeneralSettingsButton {
     }
 
     private static boolean isEnabled(Config<Boolean> configHolder) {
-        return configHolder.getConfigHolder().getValue();
+        return configHolder.getValue();
     }
 }

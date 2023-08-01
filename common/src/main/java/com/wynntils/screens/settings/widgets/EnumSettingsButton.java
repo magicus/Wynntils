@@ -24,14 +24,13 @@ public class EnumSettingsButton<E extends Enum<E>> extends GeneralSettingsButton
         super(
                 0,
                 7,
-                getWidth(configHolder.getConfigHolder().getType()),
+                getWidth(configHolder.getType()),
                 FontRenderer.getInstance().getFont().lineHeight + 8,
-                Component.literal(configHolder.getConfigHolder().getValueString()),
-                ComponentUtils.wrapTooltips(
-                        List.of(Component.literal(configHolder.getConfigHolder().getDescription())), 150));
+                Component.literal(configHolder.getValueString()),
+                ComponentUtils.wrapTooltips(List.of(Component.literal(configHolder.getDescription())), 150));
         this.configHolder = configHolder;
-        enumConstants = EnumSet.allOf((Class<E>) configHolder.getConfigHolder().getType()).stream()
-                .toList();
+        enumConstants =
+                EnumSet.allOf((Class<E>) configHolder.getType()).stream().toList();
     }
 
     @Override
@@ -48,11 +47,11 @@ public class EnumSettingsButton<E extends Enum<E>> extends GeneralSettingsButton
             return false;
         }
 
-        E value = configHolder.getConfigHolder().getValue();
+        E value = configHolder.getValue();
         int nextIndex = (enumConstants.indexOf(value) + addToIndex + enumConstants.size()) % enumConstants.size();
         E nextValue = enumConstants.get(nextIndex);
-        configHolder.getConfigHolder().setValue(nextValue);
-        setMessage(Component.literal(configHolder.getConfigHolder().getValueString()));
+        configHolder.setValue(nextValue);
+        setMessage(Component.literal(configHolder.getValueString()));
 
         playDownSound(McUtils.mc().getSoundManager());
 

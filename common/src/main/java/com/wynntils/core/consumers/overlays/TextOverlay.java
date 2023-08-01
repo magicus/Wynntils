@@ -126,5 +126,5 @@ public abstract class TextOverlay extends DynamicOverlay {
     protected abstract String getPreviewTemplate();
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {}
+    protected void onConfigUpdate(Config<?> config) {}
 }

@@ -47,7 +47,7 @@ public class BloodPoolBarOverlay extends HealthBarOverlay {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {
+    protected void onConfigUpdate(Config<?> config) {
         // Do not call super
     }
 }

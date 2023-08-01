@@ -50,7 +50,7 @@ public class ChatMentionFeature extends Feature {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {
+    protected void onConfigUpdate(Config<?> config) {
         // rebuild pattern in case it has changed
         mentionPattern = buildPattern();
     }

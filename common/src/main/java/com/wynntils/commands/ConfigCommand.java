@@ -437,9 +437,9 @@ public class ConfigCommand extends Command {
         String overlayName = context.getArgument("overlay", String.class);
         String configName = context.getArgument("config", String.class);
 
-        Config<?> configHolder = getOverlayConfigHolderFromArguments(context, featureName, overlayName, configName);
+        Config<?> config = getOverlayConfigHolderFromArguments(context, featureName, overlayName, configName);
 
-        if (configHolder == null) {
+        if (config == null) {
             return 0;
         }
 
@@ -451,7 +451,7 @@ public class ConfigCommand extends Command {
 
         MutableComponent response = Component.literal(longParentName + "\n").withStyle(ChatFormatting.AQUA);
 
-        response.append(getSpecificConfigComponent(configHolder));
+        response.append(getSpecificConfigComponent(config));
 
         context.getSource().sendSuccess(response, false);
 
@@ -472,9 +472,9 @@ public class ConfigCommand extends Command {
         String featureName = context.getArgument("feature", String.class);
         String configName = context.getArgument("config", String.class);
 
-        Config<?> configHolder = getConfigHolderFromArguments(context, featureName, configName);
+        Config<?> config = getConfigHolderFromArguments(context, featureName, configName);
 
-        if (configHolder == null) {
+        if (config == null) {
             return 0;
         }
 
@@ -486,7 +486,7 @@ public class ConfigCommand extends Command {
 
         MutableComponent response = Component.literal(longParentName + "\n").withStyle(ChatFormatting.YELLOW);
 
-        response.append(getSpecificConfigComponent(configHolder));
+        response.append(getSpecificConfigComponent(config));
 
         context.getSource().sendSuccess(response, false);
 

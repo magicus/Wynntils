@@ -22,22 +22,19 @@ import net.minecraft.network.chat.Component;
 
 public class ConfigTile extends WynntilsButton {
     private final WynntilsBookSettingsScreen settingsScreen;
-    private final Config<?> configHolder;
+    private final Config<?> config;
 
     private final GeneralSettingsButton resetButton;
     private AbstractWidget configOptionElement;
 
     public ConfigTile(
-            int x, int y, int width, int height, WynntilsBookSettingsScreen settingsScreen, Config<?> configHolder) {
-        super(x, y, width, height, Component.literal(configHolder.getJsonName()));
+            int x, int y, int width, int height, WynntilsBookSettingsScreen settingsScreen, Config<?> config) {
+        super(x, y, width, height, Component.literal(config.getJsonName()));
         this.settingsScreen = settingsScreen;
-        this.configHolder = configHolder;
-        this.configOptionElement = getWidgetFromConfigHolder(configHolder);
+        this.config = config;
+        this.configOptionElement = getWidgetFromConfigHolder(config);
         this.resetButton = new ResetButton(
-                configHolder,
-                () -> configOptionElement = getWidgetFromConfigHolder(configHolder),
-                x + width - 40,
-                getRenderY());
+                config, () -> configOptionElement = getWidgetFromConfigHolder(config), x + width - 40, getRenderY());
     }
 
     @Override
@@ -65,9 +62,9 @@ public class ConfigTile extends WynntilsButton {
     }
 
     private void renderDisplayName(PoseStack poseStack) {
-        StyledText displayName = settingsScreen.configOptionContains(configHolder)
-                ? StyledText.fromString(ChatFormatting.UNDERLINE + configHolder.getDisplayName())
-                : StyledText.fromString(configHolder.getDisplayName());
+        StyledText displayName = settingsScreen.configOptionContains(config)
+                ? StyledText.fromString(ChatFormatting.UNDERLINE + config.getDisplayName())
+                : StyledText.fromString(config.getDisplayName());
         poseStack.pushPose();
         poseStack.scale(0.8f, 0.8f, 0);
         FontRenderer.getInstance()

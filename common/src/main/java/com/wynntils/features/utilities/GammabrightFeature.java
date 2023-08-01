@@ -47,8 +47,8 @@ public class GammabrightFeature extends Feature {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {
-        if (configHolder.getFieldName().equals("gammabrightEnabled")) {
+    protected void onConfigUpdate(Config<?> config) {
+        if (config.getFieldName().equals("gammabrightEnabled")) {
             applyGammabright();
         }
     }

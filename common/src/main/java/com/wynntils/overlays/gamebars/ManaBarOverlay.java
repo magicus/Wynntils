@@ -64,7 +64,7 @@ public class ManaBarOverlay extends OverflowableBarOverlay {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {
+    protected void onConfigUpdate(Config<?> config) {
         Models.CharacterStats.hideMana(!this.shouldDisplayOriginal.get());
     }
 

@@ -221,6 +221,6 @@ public class PartyMembersOverlay extends ContainerOverlay<PartyMembersOverlay.Pa
         }
 
         @Override
-        protected void onConfigUpdate(Config<?> configHolder) {}
+        protected void onConfigUpdate(Config<?> config) {}
     }
 }

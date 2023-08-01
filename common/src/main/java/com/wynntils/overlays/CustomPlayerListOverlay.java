@@ -198,7 +198,7 @@ public class CustomPlayerListOverlay extends Overlay {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {
+    protected void onConfigUpdate(Config<?> config) {
         animationPercentage.setOpeningDuration(Duration.of(openingDuration.get(), ChronoUnit.MILLIS));
     }
 }

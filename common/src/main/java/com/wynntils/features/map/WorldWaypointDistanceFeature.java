@@ -299,15 +299,15 @@ public class WorldWaypointDistanceFeature extends Feature {
 
         switch (unknownConfigHolder.getFieldName()) {
             case "topBoundingDistance", "bottomBoundingDistance" -> {
-                Config<Float> configHolder = (Config<Float>) unknownConfigHolder;
-                if (configHolder.getValue() > window.getGuiScaledHeight() * 0.4f) {
-                    configHolder.setValue(window.getGuiScaledHeight() * 0.4f);
+                Config<Float> config = (Config<Float>) unknownConfigHolder;
+                if (config.getValue() > window.getGuiScaledHeight() * 0.4f) {
+                    config.setValue(window.getGuiScaledHeight() * 0.4f);
                 }
             }
             case "horizontalBoundingDistance" -> {
-                Config<Float> configHolder = (Config<Float>) unknownConfigHolder;
-                if (configHolder.getValue() > window.getGuiScaledWidth() * 0.4f) {
-                    configHolder.setValue(window.getGuiScaledWidth() * 0.4f);
+                Config<Float> config = (Config<Float>) unknownConfigHolder;
+                if (config.getValue() > window.getGuiScaledWidth() * 0.4f) {
+                    config.setValue(window.getGuiScaledWidth() * 0.4f);
                 }
             }
         }

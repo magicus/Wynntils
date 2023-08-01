@@ -114,11 +114,10 @@ public class OverlayEntry extends ContainerObjectSelectionList.Entry<OverlayEntr
         // right click
         if (button == 1) {
             Managers.Config.getConfigHolders()
-                    .filter(configHolder -> configHolder.getParent() == overlay
-                            && configHolder.getFieldName().equals("userEnabled"))
+                    .filter(config -> config.getParent() == overlay
+                            && config.getFieldName().equals("userEnabled"))
                     .findFirst()
-                    .ifPresent(configHolder ->
-                            ((Config<Boolean>) configHolder).setValue(!Managers.Overlay.isEnabled(overlay)));
+                    .ifPresent(config -> ((Config<Boolean>) config).setValue(!Managers.Overlay.isEnabled(overlay)));
             Managers.Config.saveConfig();
             return true;
         }

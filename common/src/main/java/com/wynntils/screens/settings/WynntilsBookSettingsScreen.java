@@ -428,9 +428,9 @@ public final class WynntilsBookSettingsScreen extends WynntilsScreen implements 
         }
     }
 
-    public boolean configOptionContains(Config<?> configHolder) {
+    public boolean configOptionContains(Config<?> config) {
         return !searchWidget.getTextBoxInput().isEmpty()
-                && StringUtils.containsIgnoreCase(configHolder.getDisplayName(), searchWidget.getTextBoxInput());
+                && StringUtils.containsIgnoreCase(config.getDisplayName(), searchWidget.getTextBoxInput());
     }
 
     private boolean searchMatches(Translatable translatable) {
@@ -447,8 +447,7 @@ public final class WynntilsBookSettingsScreen extends WynntilsScreen implements 
         }
 
         List<Config<?>> configsOptions = selected.getVisibleConfigOptions().stream()
-                .sorted(Comparator.comparing(
-                        configHolder -> !Objects.equals(configHolder.getFieldName(), "userEnabled")))
+                .sorted(Comparator.comparing(config -> !Objects.equals(config.getFieldName(), "userEnabled")))
                 .toList();
 
         for (int i = 0; i < configsOptions.size(); i++) {

@@ -123,7 +123,7 @@ public class DiscordRichPresenceFeature extends Feature {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {
+    protected void onConfigUpdate(Config<?> config) {
         if (this.isEnabled()) {
             // This isReady() check is required for Linux to not crash on config change.
             if (!Services.Discord.isReady()) {

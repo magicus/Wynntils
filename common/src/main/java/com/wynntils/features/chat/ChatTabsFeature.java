@@ -176,7 +176,7 @@ public class ChatTabsFeature extends Feature {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {
+    protected void onConfigUpdate(Config<?> config) {
         Services.ChatTab.refocusFirstTab();
 
         if ((McUtils.mc().screen instanceof ChatScreen chatScreen)) {

@@ -292,13 +292,13 @@ public class CustomBankPagesFeature extends Feature {
         }
 
         // If we're still here, we have a string config
-        Config<String> configHolder = (Config<String>) unknownConfigHolder;
-        String valueString = configHolder.getValue();
+        Config<String> config = (Config<String>) unknownConfigHolder;
+        String valueString = config.getValue();
 
         List<Integer> originalValues = parseStringToDestinations(valueString, containerType);
 
         if (originalValues == null) {
-            configHolder.setValue(configHolder.getDefaultValue());
+            config.setValue(config.getDefaultValue());
             return;
         }
 
@@ -308,7 +308,7 @@ public class CustomBankPagesFeature extends Feature {
                 newValues.stream().limit(MAX_DESTINATIONS).map(Object::toString).collect(Collectors.joining(","));
 
         if (!formattedConfig.equals(valueString)) {
-            configHolder.setValue(formattedConfig);
+            config.setValue(formattedConfig);
         }
     }
 

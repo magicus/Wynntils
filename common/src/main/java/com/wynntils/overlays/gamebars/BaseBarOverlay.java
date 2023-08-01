@@ -111,7 +111,7 @@ public abstract class BaseBarOverlay extends Overlay {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {}
+    protected void onConfigUpdate(Config<?> config) {}
 
     protected void renderBar(
             PoseStack poseStack, MultiBufferSource bufferSource, float renderY, float renderHeight, float progress) {

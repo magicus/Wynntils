@@ -480,7 +480,7 @@ public class MinimapOverlay extends Overlay {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {}
+    protected void onConfigUpdate(Config<?> config) {}
 
     private enum CompassRenderType {
         NONE,

@@ -143,7 +143,7 @@ public class NpcDialogueOverlay extends Overlay {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {
+    protected void onConfigUpdate(Config<?> config) {
         updateDialogExtractionSettings();
         updateTextRenderSettings();
     }

@@ -28,8 +28,8 @@ public class HadesFeature extends Feature {
     public final Config<Boolean> shareWithGuild = new Config<>(true);
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {
-        switch (configHolder.getFieldName()) {
+    protected void onConfigUpdate(Config<?> config) {
+        switch (config.getFieldName()) {
             case "getOtherPlayerInfo" -> {
                 if (getOtherPlayerInfo.get()) {
                     Services.Hades.tryResendWorldData();

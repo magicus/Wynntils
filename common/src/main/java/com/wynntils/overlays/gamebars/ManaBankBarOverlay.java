@@ -96,7 +96,7 @@ public class ManaBankBarOverlay extends ManaBarOverlay {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> configHolder) {
+    protected void onConfigUpdate(Config<?> config) {
         // Do not call super
     }
 }

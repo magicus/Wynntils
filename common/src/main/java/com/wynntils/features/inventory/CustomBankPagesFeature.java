@@ -267,8 +267,8 @@ public class CustomBankPagesFeature extends Feature {
     }
 
     @Override
-    protected void onConfigUpdate(Config<?> unknownConfigHolder) {
-        String fieldName = unknownConfigHolder.getFieldName();
+    protected void onConfigUpdate(Config<?> unknownConfig) {
+        String fieldName = unknownConfig.getFieldName();
 
         SearchableContainerType containerType;
         int maxValue;
@@ -292,7 +292,7 @@ public class CustomBankPagesFeature extends Feature {
         }
 
         // If we're still here, we have a string config
-        Config<String> config = (Config<String>) unknownConfigHolder;
+        Config<String> config = (Config<String>) unknownConfig;
         String valueString = config.getValue();
 
         List<Integer> originalValues = parseStringToDestinations(valueString, containerType);

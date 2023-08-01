@@ -133,7 +133,7 @@ public final class ConfigManager extends Manager {
             holder.getOverlays().forEach(overlay -> overlay.addConfigOptions(this.getConfigOptions(overlay)));
         }
 
-        for (Config<?> holder : getConfigHolderList()) {
+        for (Config<?> holder : getConfigList()) {
             // option hasn't been saved to config
             if (!configObject.has(holder.getJsonName())) {
                 if (resetIfNotFound) {
@@ -154,7 +154,7 @@ public final class ConfigManager extends Manager {
         }
     }
 
-    private static List<Config<?>> getConfigHolderList() {
+    private static List<Config<?>> getConfigList() {
         // This breaks the concept of "manager holds all config holders at all times". Instead we get the group
         // overlays' configs from the overlay instance itself, to save us some trouble.
 
@@ -171,7 +171,7 @@ public final class ConfigManager extends Manager {
     public void saveConfig() {
         // create json object, with entry for each option of each container
         JsonObject holderJson = new JsonObject();
-        for (Config<?> holder : getConfigHolderList()) {
+        for (Config<?> holder : getConfigList()) {
             if (!holder.valueChanged()) continue; // only save options that have been set by the user
             Object value = holder.getValue();
 
@@ -204,7 +204,7 @@ public final class ConfigManager extends Manager {
     private void saveDefaultConfig() {
         // create json object, with entry for each option of each container
         JsonObject holderJson = new JsonObject();
-        for (Config<?> holder : getConfigHolderList()) {
+        for (Config<?> holder : getConfigList()) {
             Object value = holder.getDefaultValue();
 
             JsonElement holderElement = Managers.Json.GSON.toJsonTree(value);
@@ -275,7 +275,7 @@ public final class ConfigManager extends Manager {
         return options;
     }
 
-    public Stream<Config<?>> getConfigHolders() {
-        return getConfigHolderList().stream();
+    public Stream<Config<?>> getConfigs() {
+        return getConfigList().stream();
     }
 }

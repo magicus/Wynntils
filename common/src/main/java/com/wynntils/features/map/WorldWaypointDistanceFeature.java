@@ -294,18 +294,18 @@ public class WorldWaypointDistanceFeature extends Feature {
 
     // limit the bounding distance to prevent divided by zero in getBoundingIntersectPoint
     @Override
-    protected void onConfigUpdate(Config<?> unknownConfigHolder) {
+    protected void onConfigUpdate(Config<?> unknownConfig) {
         Window window = McUtils.window();
 
-        switch (unknownConfigHolder.getFieldName()) {
+        switch (unknownConfig.getFieldName()) {
             case "topBoundingDistance", "bottomBoundingDistance" -> {
-                Config<Float> config = (Config<Float>) unknownConfigHolder;
+                Config<Float> config = (Config<Float>) unknownConfig;
                 if (config.getValue() > window.getGuiScaledHeight() * 0.4f) {
                     config.setValue(window.getGuiScaledHeight() * 0.4f);
                 }
             }
             case "horizontalBoundingDistance" -> {
-                Config<Float> config = (Config<Float>) unknownConfigHolder;
+                Config<Float> config = (Config<Float>) unknownConfig;
                 if (config.getValue() > window.getGuiScaledWidth() * 0.4f) {
                     config.setValue(window.getGuiScaledWidth() * 0.4f);
                 }

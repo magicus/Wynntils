@@ -32,9 +32,9 @@ public class ConfigTile extends WynntilsButton {
         super(x, y, width, height, Component.literal(config.getJsonName()));
         this.settingsScreen = settingsScreen;
         this.config = config;
-        this.configOptionElement = getWidgetFromConfigHolder(config);
+        this.configOptionElement = getWidgetFromConfig(config);
         this.resetButton = new ResetButton(
-                config, () -> configOptionElement = getWidgetFromConfigHolder(config), x + width - 40, getRenderY());
+                config, () -> configOptionElement = getWidgetFromConfig(config), x + width - 40, getRenderY());
     }
 
     @Override
@@ -120,7 +120,7 @@ public class ConfigTile extends WynntilsButton {
         return this.getX() + 3;
     }
 
-    private <E extends Enum<E>> AbstractWidget getWidgetFromConfigHolder(Config<?> configOption) {
+    private <E extends Enum<E>> AbstractWidget getWidgetFromConfig(Config<?> configOption) {
         if (configOption.getType().equals(Boolean.class)) {
             return new BooleanSettingsButton((Config<Boolean>) configOption);
         } else if (configOption.isEnum()) {

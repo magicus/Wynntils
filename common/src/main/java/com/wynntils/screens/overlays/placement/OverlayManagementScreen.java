@@ -6,7 +6,7 @@ package com.wynntils.screens.overlays.placement;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Managers;
-import com.wynntils.core.config.ConfigHolder;
+import com.wynntils.core.config.Config;
 import com.wynntils.core.consumers.overlays.Corner;
 import com.wynntils.core.consumers.overlays.Edge;
 import com.wynntils.core.consumers.overlays.Overlay;
@@ -418,7 +418,8 @@ public final class OverlayManagementScreen extends WynntilsScreen {
                 int finalIndex = index;
                 selectedOverlay
                         .getConfigOptionFromString("verticalAlignmentOverride")
-                        .ifPresent(configHolder -> ((ConfigHolder<VerticalAlignment>) configHolder.getConfigHolder())
+                        .ifPresent(configHolder -> ((Config<VerticalAlignment>) configHolder)
+                                .getConfigHolder()
                                 .setValue(values[finalIndex]));
             } else if (keyCode == GLFW.GLFW_KEY_RIGHT || keyCode == GLFW.GLFW_KEY_LEFT) {
                 int index = selectedOverlay.getRenderHorizontalAlignment().ordinal();
@@ -435,7 +436,8 @@ public final class OverlayManagementScreen extends WynntilsScreen {
                 int finalIndex = index;
                 selectedOverlay
                         .getConfigOptionFromString("horizontalAlignmentOverride")
-                        .ifPresent(configHolder -> ((ConfigHolder<HorizontalAlignment>) configHolder.getConfigHolder())
+                        .ifPresent(configHolder -> ((Config<HorizontalAlignment>) configHolder)
+                                .getConfigHolder()
                                 .setValue(values[finalIndex]));
             }
         } else {
@@ -451,15 +453,15 @@ public final class OverlayManagementScreen extends WynntilsScreen {
             final int finalOffsetX = offsetX;
             final int finalOffsetY = offsetY;
 
-            selectedOverlay
-                    .getConfigOptionFromString("position")
-                    .ifPresent(configHolder -> ((ConfigHolder<OverlayPosition>) configHolder.getConfigHolder())
-                            .setValue(OverlayPosition.getBestPositionFor(
-                                    selectedOverlay,
-                                    selectedOverlay.getRenderX(),
-                                    selectedOverlay.getRenderY(),
-                                    finalOffsetX,
-                                    finalOffsetY)));
+            selectedOverlay.getConfigOptionFromString("position").ifPresent(configHolder -> ((Config<OverlayPosition>)
+                            configHolder)
+                    .getConfigHolder()
+                    .setValue(OverlayPosition.getBestPositionFor(
+                            selectedOverlay,
+                            selectedOverlay.getRenderX(),
+                            selectedOverlay.getRenderY(),
+                            finalOffsetX,
+                            finalOffsetY)));
         }
 
         if (keyCode == GLFW.GLFW_KEY_LEFT_SHIFT || keyCode == GLFW.GLFW_KEY_RIGHT_SHIFT) {

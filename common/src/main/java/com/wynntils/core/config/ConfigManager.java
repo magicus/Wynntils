@@ -23,7 +23,6 @@ import com.wynntils.utils.JsonUtils;
 import com.wynntils.utils.mc.McUtils;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,11 +32,11 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 public final class ConfigManager extends Manager {
-    private static final File CONFIGS = WynntilsMod.getModStorageDir("config");
+    private static final File CONFIG_DIR = WynntilsMod.getModStorageDir("config");
     private static final String FILE_SUFFIX = ".conf.json";
-    private static final File DEFAULT_CONFIG = new File(CONFIGS, "default" + FILE_SUFFIX);
+    private static final File DEFAULT_CONFIG = new File(CONFIG_DIR, "default" + FILE_SUFFIX);
     private static final String OVERLAY_GROUPS_JSON_KEY = "overlayGroups";
-    private static final Set<ConfigHolder<?>> CONFIG_HOLDERS = new TreeSet<>();
+    private static final Set<Config<?>> CONFIGS = new TreeSet<>();
 
     private final File userConfig;
     private JsonObject configObject;
@@ -49,7 +48,7 @@ public final class ConfigManager extends Manager {
             OverlayManager overlay) {
         super(List.of(configUpfixerManager, jsonManager, feature, overlay));
 
-        userConfig = new File(CONFIGS, McUtils.mc().getUser().getUuid() + FILE_SUFFIX);
+        userConfig = new File(CONFIG_DIR, McUtils.mc().getUser().getUuid() + FILE_SUFFIX);
     }
 
     public void init() {
@@ -60,7 +59,7 @@ public final class ConfigManager extends Manager {
         Managers.Feature.getFeatures().forEach(this::registerFeature);
 
         // Now, we have to apply upfixers, before any config loading happens
-        if (Managers.ConfigUpfixer.runUpfixers(configObject, CONFIG_HOLDERS)) {
+        if (Managers.ConfigUpfixer.runUpfixers(configObject, CONFIGS)) {
             Managers.Json.savePreciousJson(userConfig, configObject);
         }
 
@@ -89,10 +88,10 @@ public final class ConfigManager extends Manager {
     }
 
     private <P extends Configurable & Translatable> void registerConfigOptions(P configurable) {
-        List<ConfigHolder<?>> configOptions = getConfigOptions(configurable);
+        List<Config<?>> configs = getConfigOptions(configurable);
 
-        configurable.addConfigOptions(configOptions);
-        CONFIG_HOLDERS.addAll(configOptions);
+        configurable.addConfigOptions(configs);
+        CONFIGS.addAll(configs);
     }
 
     public void reloadConfiguration() {
@@ -161,12 +160,13 @@ public final class ConfigManager extends Manager {
         // overlays' configs from the overlay instance itself, to save us some trouble.
 
         return Stream.concat(
-                        CONFIG_HOLDERS.stream(),
+                        CONFIGS.stream().map(Config::getConfigHolder),
                         Managers.Overlay.getOverlayGroups().stream()
                                 .map(OverlayGroupHolder::getOverlays)
                                 .flatMap(List::stream)
                                 .map(Overlay::getConfigOptions)
-                                .flatMap(List::stream))
+                                .flatMap(List::stream)
+                                .map(Config::getConfigHolder))
                 .toList();
     }
 
@@ -217,8 +217,8 @@ public final class ConfigManager extends Manager {
         Managers.Json.savePreciousJson(DEFAULT_CONFIG, holderJson);
     }
 
-    private <P extends Configurable & Translatable> List<ConfigHolder<?>> getConfigOptions(P parent) {
-        List<ConfigHolder<?>> options = new ArrayList<>();
+    private <P extends Configurable & Translatable> List<Config<?>> getConfigOptions(P parent) {
+        List<Config<?>> options = new ArrayList<>();
 
         Field[] annotatedConfigs = FieldUtils.getFieldsWithAnnotation(parent.getClass(), RegisterConfig.class);
         for (Field field : annotatedConfigs) {
@@ -247,22 +247,19 @@ public final class ConfigManager extends Manager {
             if (configInfo == null) {
                 throw new RuntimeException("A Config is missing @RegisterConfig annotation:" + configField);
             }
-            String i18nKey = configInfo.i18nKey();
-
             Config<?> configObj;
             try {
                 configObj = (Config<?>) FieldUtils.readField(configField, parent, true);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Cannot read Config field: " + configField, e);
             }
-            boolean visible = !(configObj instanceof HiddenConfig<?>);
 
-            Type valueType = Managers.Json.getJsonValueType(configField);
+            configObj.createConfigHolder(parent, configField, configInfo);
 
-            ConfigHolder<?> configHolder =
-                    new ConfigHolder<>(parent, configObj, configField.getName(), i18nKey, visible, valueType);
             if (WynntilsMod.isDevelopmentEnvironment()) {
-                if (visible) {
+                ConfigHolder<?> configHolder = configObj.getConfigHolder();
+
+                if (configHolder.isVisible()) {
                     if (configHolder.getDisplayName().startsWith("feature.wynntils.")) {
                         WynntilsMod.error("Config displayName i18n is missing for " + configHolder.getDisplayName());
                         throw new AssertionError("Missing i18n for " + configHolder.getDisplayName());
@@ -277,7 +274,7 @@ public final class ConfigManager extends Manager {
                     }
                 }
             }
-            options.add(configHolder);
+            options.add(configObj);
         }
         return options;
     }

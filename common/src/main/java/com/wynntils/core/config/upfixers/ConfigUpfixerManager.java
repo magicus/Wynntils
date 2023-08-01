@@ -9,7 +9,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.wynntils.core.WynntilsMod;
 import com.wynntils.core.components.Manager;
-import com.wynntils.core.config.ConfigHolder;
+import com.wynntils.core.config.Config;
 import com.wynntils.core.config.upfixers.impl.CustomCommandKeybindSlashStartUpfixer;
 import com.wynntils.core.config.upfixers.impl.CustomPoiIconEnumBugUpfixer;
 import com.wynntils.core.config.upfixers.impl.CustomPoiVisbilityUpfixer;
@@ -22,6 +22,7 @@ import com.wynntils.core.config.upfixers.impl.QuestBookToContentRenamedConfigsUp
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ConfigUpfixerManager extends Manager {
     public static final String UPFIXER_JSON_MEMBER_NAME = "wynntils.upfixers";
@@ -53,14 +54,16 @@ public class ConfigUpfixerManager extends Manager {
      * @param configObject  The config object to run upfixers on.
      * @param configHolders All registered configHolders
      */
-    public boolean runUpfixers(JsonObject configObject, Set<ConfigHolder<?>> configHolders) {
+    public boolean runUpfixers(JsonObject configObject, Set<Config<?>> configHolders) {
         List<ConfigUpfixer> missingUpfixers = getMissingUpfixers(configObject);
 
         boolean anyChange = false;
 
         for (ConfigUpfixer upfixer : missingUpfixers) {
             try {
-                if (upfixer.apply(configObject, configHolders)) {
+                if (upfixer.apply(
+                        configObject,
+                        configHolders.stream().map(Config::getConfigHolder).collect(Collectors.toSet()))) {
                     anyChange = true;
                     addUpfixerToConfig(configObject, upfixer);
                     WynntilsMod.info("Applied upfixer \"" + upfixer.getUpfixerName() + "\" to config.");

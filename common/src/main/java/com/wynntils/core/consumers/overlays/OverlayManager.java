@@ -89,8 +89,8 @@ public final class OverlayManager extends Manager {
         enabledOverlays.remove(disabledOverlay);
         WynntilsMod.unregisterEventListener(disabledOverlay);
 
-        enabledOverlays.forEach(
-                overlay -> overlay.getConfigOptionFromString("userEnabled").ifPresent(overlay::callOnConfigUpdate));
+        enabledOverlays.forEach(overlay -> overlay.getConfigOptionFromString("userEnabled")
+                .ifPresent(c -> overlay.callOnConfigUpdate(c.getConfigHolder())));
     }
 
     public void enableOverlays(Feature parent) {
@@ -103,8 +103,8 @@ public final class OverlayManager extends Manager {
         enabledOverlays.add(enableOverlay);
         WynntilsMod.registerEventListener(enableOverlay);
 
-        enabledOverlays.forEach(
-                overlay -> overlay.getConfigOptionFromString("userEnabled").ifPresent(overlay::callOnConfigUpdate));
+        enabledOverlays.forEach(overlay -> overlay.getConfigOptionFromString("userEnabled")
+                .ifPresent(c -> overlay.callOnConfigUpdate(c.getConfigHolder())));
     }
 
     public void discoverOverlays(Feature feature) {
@@ -273,7 +273,7 @@ public final class OverlayManager extends Manager {
         // Hopefully we have none :)
         for (Overlay overlay : crashedOverlays) {
             overlay.getConfigOptionFromString("userEnabled")
-                    .ifPresent(configHolder -> ((ConfigHolder<Boolean>) configHolder).setValue(false));
+                    .ifPresent(config -> ((ConfigHolder<Boolean>) config.getConfigHolder()).setValue(false));
         }
     }
 

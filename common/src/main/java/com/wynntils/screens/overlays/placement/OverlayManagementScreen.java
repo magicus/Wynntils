@@ -288,14 +288,16 @@ public final class OverlayManagementScreen extends WynntilsScreen {
         Overlay selected = selectedOverlay;
 
         if (button == GLFW.GLFW_MOUSE_BUTTON_MIDDLE && KeyboardUtils.isShiftDown()) {
-            selectedOverlay.getConfigOptionFromString("position").ifPresent(ConfigHolder::reset);
-            selectedOverlay.getConfigOptionFromString("size").ifPresent(ConfigHolder::reset);
+            selectedOverlay.getConfigOptionFromString("position").ifPresent(c -> c.getConfigHolder()
+                    .reset());
+            selectedOverlay.getConfigOptionFromString("size").ifPresent(c -> c.getConfigHolder()
+                    .reset());
             selectedOverlay
                     .getConfigOptionFromString("horizontalAlignmentOverride")
-                    .ifPresent(ConfigHolder::reset);
+                    .ifPresent(c -> c.getConfigHolder().reset());
             selectedOverlay
                     .getConfigOptionFromString("verticalAlignmentOverride")
-                    .ifPresent(ConfigHolder::reset);
+                    .ifPresent(c -> c.getConfigHolder().reset());
 
             return true;
         }
@@ -416,8 +418,8 @@ public final class OverlayManagementScreen extends WynntilsScreen {
                 int finalIndex = index;
                 selectedOverlay
                         .getConfigOptionFromString("verticalAlignmentOverride")
-                        .ifPresent(configHolder ->
-                                ((ConfigHolder<VerticalAlignment>) configHolder).setValue(values[finalIndex]));
+                        .ifPresent(configHolder -> ((ConfigHolder<VerticalAlignment>) configHolder.getConfigHolder())
+                                .setValue(values[finalIndex]));
             } else if (keyCode == GLFW.GLFW_KEY_RIGHT || keyCode == GLFW.GLFW_KEY_LEFT) {
                 int index = selectedOverlay.getRenderHorizontalAlignment().ordinal();
 
@@ -433,8 +435,8 @@ public final class OverlayManagementScreen extends WynntilsScreen {
                 int finalIndex = index;
                 selectedOverlay
                         .getConfigOptionFromString("horizontalAlignmentOverride")
-                        .ifPresent(configHolder ->
-                                ((ConfigHolder<HorizontalAlignment>) configHolder).setValue(values[finalIndex]));
+                        .ifPresent(configHolder -> ((ConfigHolder<HorizontalAlignment>) configHolder.getConfigHolder())
+                                .setValue(values[finalIndex]));
             }
         } else {
             // Arrow keys change overlay position
@@ -451,7 +453,7 @@ public final class OverlayManagementScreen extends WynntilsScreen {
 
             selectedOverlay
                     .getConfigOptionFromString("position")
-                    .ifPresent(configHolder -> ((ConfigHolder<OverlayPosition>) configHolder)
+                    .ifPresent(configHolder -> ((ConfigHolder<OverlayPosition>) configHolder.getConfigHolder())
                             .setValue(OverlayPosition.getBestPositionFor(
                                     selectedOverlay,
                                     selectedOverlay.getRenderX(),

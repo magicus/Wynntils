@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.config.Category;
+import com.wynntils.core.config.Config;
 import com.wynntils.core.config.ConfigHolder;
 import com.wynntils.core.consumers.features.Configurable;
 import com.wynntils.core.consumers.features.Feature;
@@ -344,7 +345,8 @@ public final class WynntilsBookSettingsScreen extends WynntilsScreen implements 
 
         List<Configurable> configurableList = Managers.Feature.getFeatures().stream()
                 .filter(feature -> searchMatches(feature)
-                        || feature.getVisibleConfigOptions().stream().anyMatch(this::configOptionContains))
+                        || feature.getVisibleConfigOptions().stream()
+                                .anyMatch(c -> this.configOptionContains(c.getConfigHolder())))
                 .map(feature -> (Configurable) feature)
                 .sorted()
                 .collect(Collectors.toList());
@@ -352,7 +354,8 @@ public final class WynntilsBookSettingsScreen extends WynntilsScreen implements 
         configurableList.addAll(Managers.Overlay.getOverlays().stream()
                 .filter(overlay -> !configurableList.contains(Managers.Overlay.getOverlayParent(overlay)))
                 .filter(overlay -> searchMatches(overlay)
-                        || overlay.getVisibleConfigOptions().stream().anyMatch(this::configOptionContains))
+                        || overlay.getVisibleConfigOptions().stream()
+                                .anyMatch(c -> this.configOptionContains(c.getConfigHolder())))
                 .sorted()
                 .toList());
 
@@ -446,7 +449,8 @@ public final class WynntilsBookSettingsScreen extends WynntilsScreen implements 
             return;
         }
 
-        List<ConfigHolder<?>> configsOptions = selected.getVisibleConfigOptions().stream()
+        List<? extends ConfigHolder<?>> configsOptions = selected.getVisibleConfigOptions().stream()
+                .map(Config::getConfigHolder)
                 .sorted(Comparator.comparing(
                         configHolder -> !Objects.equals(configHolder.getFieldName(), "userEnabled")))
                 .toList();

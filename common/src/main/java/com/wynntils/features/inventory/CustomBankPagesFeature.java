@@ -8,7 +8,6 @@ import com.wynntils.core.components.Models;
 import com.wynntils.core.config.Category;
 import com.wynntils.core.config.Config;
 import com.wynntils.core.config.ConfigCategory;
-import com.wynntils.core.config.ConfigHolder;
 import com.wynntils.core.config.RegisterConfig;
 import com.wynntils.core.consumers.features.Feature;
 import com.wynntils.mc.event.ContainerClickEvent;
@@ -268,8 +267,8 @@ public class CustomBankPagesFeature extends Feature {
     }
 
     @Override
-    protected void onConfigUpdate(ConfigHolder<?> unknownConfigHolder) {
-        String fieldName = unknownConfigHolder.getFieldName();
+    protected void onConfigUpdate(Config<?> unknownConfigHolder) {
+        String fieldName = unknownConfigHolder.getConfigHolder().getFieldName();
 
         SearchableContainerType containerType;
         int maxValue;
@@ -293,13 +292,15 @@ public class CustomBankPagesFeature extends Feature {
         }
 
         // If we're still here, we have a string config
-        ConfigHolder<String> configHolder = (ConfigHolder<String>) unknownConfigHolder;
-        String valueString = configHolder.getValue();
+        Config<String> configHolder = (Config<String>) unknownConfigHolder;
+        String valueString = configHolder.getConfigHolder().getValue();
 
         List<Integer> originalValues = parseStringToDestinations(valueString, containerType);
 
         if (originalValues == null) {
-            configHolder.setValue(configHolder.getDefaultValue());
+            configHolder
+                    .getConfigHolder()
+                    .setValue(configHolder.getConfigHolder().getDefaultValue());
             return;
         }
 
@@ -309,7 +310,7 @@ public class CustomBankPagesFeature extends Feature {
                 newValues.stream().limit(MAX_DESTINATIONS).map(Object::toString).collect(Collectors.joining(","));
 
         if (!formattedConfig.equals(valueString)) {
-            configHolder.setValue(formattedConfig);
+            configHolder.getConfigHolder().setValue(formattedConfig);
         }
     }
 

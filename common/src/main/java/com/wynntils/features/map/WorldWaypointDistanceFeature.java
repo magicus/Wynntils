@@ -12,7 +12,6 @@ import com.wynntils.core.components.Models;
 import com.wynntils.core.config.Category;
 import com.wynntils.core.config.Config;
 import com.wynntils.core.config.ConfigCategory;
-import com.wynntils.core.config.ConfigHolder;
 import com.wynntils.core.config.RegisterConfig;
 import com.wynntils.core.consumers.features.Feature;
 import com.wynntils.core.text.StyledText;
@@ -295,20 +294,20 @@ public class WorldWaypointDistanceFeature extends Feature {
 
     // limit the bounding distance to prevent divided by zero in getBoundingIntersectPoint
     @Override
-    protected void onConfigUpdate(ConfigHolder<?> unknownConfigHolder) {
+    protected void onConfigUpdate(Config<?> unknownConfigHolder) {
         Window window = McUtils.window();
 
-        switch (unknownConfigHolder.getFieldName()) {
+        switch (unknownConfigHolder.getConfigHolder().getFieldName()) {
             case "topBoundingDistance", "bottomBoundingDistance" -> {
-                ConfigHolder<Float> configHolder = (ConfigHolder<Float>) unknownConfigHolder;
-                if (configHolder.getValue() > window.getGuiScaledHeight() * 0.4f) {
-                    configHolder.setValue(window.getGuiScaledHeight() * 0.4f);
+                Config<Float> configHolder = (Config<Float>) unknownConfigHolder;
+                if (configHolder.getConfigHolder().getValue() > window.getGuiScaledHeight() * 0.4f) {
+                    configHolder.getConfigHolder().setValue(window.getGuiScaledHeight() * 0.4f);
                 }
             }
             case "horizontalBoundingDistance" -> {
-                ConfigHolder<Float> configHolder = (ConfigHolder<Float>) unknownConfigHolder;
-                if (configHolder.getValue() > window.getGuiScaledWidth() * 0.4f) {
-                    configHolder.setValue(window.getGuiScaledWidth() * 0.4f);
+                Config<Float> configHolder = (Config<Float>) unknownConfigHolder;
+                if (configHolder.getConfigHolder().getValue() > window.getGuiScaledWidth() * 0.4f) {
+                    configHolder.getConfigHolder().setValue(window.getGuiScaledWidth() * 0.4f);
                 }
             }
         }

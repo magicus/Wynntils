@@ -9,7 +9,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.config.Category;
 import com.wynntils.core.config.Config;
-import com.wynntils.core.config.ConfigHolder;
 import com.wynntils.core.config.Configurable;
 import com.wynntils.core.consumers.Translatable;
 import com.wynntils.core.consumers.features.Feature;
@@ -345,8 +344,7 @@ public final class WynntilsBookSettingsScreen extends WynntilsScreen implements 
 
         List<Configurable> configurableList = Managers.Feature.getFeatures().stream()
                 .filter(feature -> searchMatches(feature)
-                        || feature.getVisibleConfigOptions().stream()
-                                .anyMatch(c -> this.configOptionContains(c.getConfigHolder())))
+                        || feature.getVisibleConfigOptions().stream().anyMatch(this::configOptionContains))
                 .map(feature -> (Configurable) feature)
                 .sorted()
                 .collect(Collectors.toList());
@@ -354,8 +352,7 @@ public final class WynntilsBookSettingsScreen extends WynntilsScreen implements 
         configurableList.addAll(Managers.Overlay.getOverlays().stream()
                 .filter(overlay -> !configurableList.contains(Managers.Overlay.getOverlayParent(overlay)))
                 .filter(overlay -> searchMatches(overlay)
-                        || overlay.getVisibleConfigOptions().stream()
-                                .anyMatch(c -> this.configOptionContains(c.getConfigHolder())))
+                        || overlay.getVisibleConfigOptions().stream().anyMatch(this::configOptionContains))
                 .sorted()
                 .toList());
 
@@ -431,9 +428,10 @@ public final class WynntilsBookSettingsScreen extends WynntilsScreen implements 
         }
     }
 
-    public boolean configOptionContains(ConfigHolder<?> configHolder) {
+    public boolean configOptionContains(Config<?> configHolder) {
         return !searchWidget.getTextBoxInput().isEmpty()
-                && StringUtils.containsIgnoreCase(configHolder.getDisplayName(), searchWidget.getTextBoxInput());
+                && StringUtils.containsIgnoreCase(
+                        configHolder.getConfigHolder().getDisplayName(), searchWidget.getTextBoxInput());
     }
 
     private boolean searchMatches(Translatable translatable) {
@@ -449,14 +447,13 @@ public final class WynntilsBookSettingsScreen extends WynntilsScreen implements 
             return;
         }
 
-        List<? extends ConfigHolder<?>> configsOptions = selected.getVisibleConfigOptions().stream()
-                .map(Config::getConfigHolder)
-                .sorted(Comparator.comparing(
-                        configHolder -> !Objects.equals(configHolder.getFieldName(), "userEnabled")))
+        List<Config<?>> configsOptions = selected.getVisibleConfigOptions().stream()
+                .sorted(Comparator.comparing(configHolder ->
+                        !Objects.equals(configHolder.getConfigHolder().getFieldName(), "userEnabled")))
                 .toList();
 
         for (int i = 0; i < configsOptions.size(); i++) {
-            ConfigHolder<?> config = configsOptions.get(i);
+            Config<?> config = configsOptions.get(i);
 
             int renderIndex = i % CONFIGS_PER_PAGE;
 

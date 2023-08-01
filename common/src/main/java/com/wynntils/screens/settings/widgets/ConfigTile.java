@@ -5,7 +5,7 @@
 package com.wynntils.screens.settings.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.wynntils.core.config.ConfigHolder;
+import com.wynntils.core.config.Config;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.base.widgets.WynntilsButton;
 import com.wynntils.screens.settings.WynntilsBookSettingsScreen;
@@ -22,19 +22,19 @@ import net.minecraft.network.chat.Component;
 
 public class ConfigTile extends WynntilsButton {
     private final WynntilsBookSettingsScreen settingsScreen;
-    private final ConfigHolder<?> configHolder;
+    private final Config<?> configHolder;
 
     private final GeneralSettingsButton resetButton;
     private AbstractWidget configOptionElement;
 
     public ConfigTile(
-            int x,
-            int y,
-            int width,
-            int height,
-            WynntilsBookSettingsScreen settingsScreen,
-            ConfigHolder<?> configHolder) {
-        super(x, y, width, height, Component.literal(configHolder.getJsonName()));
+            int x, int y, int width, int height, WynntilsBookSettingsScreen settingsScreen, Config<?> configHolder) {
+        super(
+                x,
+                y,
+                width,
+                height,
+                Component.literal(configHolder.getConfigHolder().getJsonName()));
         this.settingsScreen = settingsScreen;
         this.configHolder = configHolder;
         this.configOptionElement = getWidgetFromConfigHolder(configHolder);
@@ -71,8 +71,9 @@ public class ConfigTile extends WynntilsButton {
 
     private void renderDisplayName(PoseStack poseStack) {
         StyledText displayName = settingsScreen.configOptionContains(configHolder)
-                ? StyledText.fromString(ChatFormatting.UNDERLINE + configHolder.getDisplayName())
-                : StyledText.fromString(configHolder.getDisplayName());
+                ? StyledText.fromString(ChatFormatting.UNDERLINE
+                        + configHolder.getConfigHolder().getDisplayName())
+                : StyledText.fromString(configHolder.getConfigHolder().getDisplayName());
         poseStack.pushPose();
         poseStack.scale(0.8f, 0.8f, 0);
         FontRenderer.getInstance()
@@ -128,13 +129,13 @@ public class ConfigTile extends WynntilsButton {
         return this.getX() + 3;
     }
 
-    private <E extends Enum<E>> AbstractWidget getWidgetFromConfigHolder(ConfigHolder<?> configOption) {
-        if (configOption.getType().equals(Boolean.class)) {
-            return new BooleanSettingsButton((ConfigHolder<Boolean>) configOption);
-        } else if (configOption.isEnum()) {
-            return new EnumSettingsButton<>((ConfigHolder<E>) configOption);
-        } else if (configOption.getType().equals(CustomColor.class)) {
-            return new CustomColorSettingsButton((ConfigHolder<CustomColor>) configOption, settingsScreen);
+    private <E extends Enum<E>> AbstractWidget getWidgetFromConfigHolder(Config<?> configOption) {
+        if (configOption.getConfigHolder().getType().equals(Boolean.class)) {
+            return new BooleanSettingsButton((Config<Boolean>) configOption);
+        } else if (configOption.getConfigHolder().isEnum()) {
+            return new EnumSettingsButton<>((Config<E>) configOption);
+        } else if (configOption.getConfigHolder().getType().equals(CustomColor.class)) {
+            return new CustomColorSettingsButton((Config<CustomColor>) configOption, settingsScreen);
         } else {
             return new TextInputBoxSettingsWidget<>(configOption, settingsScreen);
         }

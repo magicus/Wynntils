@@ -4,7 +4,7 @@
  */
 package com.wynntils.screens.settings.widgets;
 
-import com.wynntils.core.config.ConfigHolder;
+import com.wynntils.core.config.Config;
 import com.wynntils.utils.EnumUtils;
 import com.wynntils.utils.mc.ComponentUtils;
 import com.wynntils.utils.mc.McUtils;
@@ -17,20 +17,21 @@ import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 public class EnumSettingsButton<E extends Enum<E>> extends GeneralSettingsButton {
-    private final ConfigHolder<E> configHolder;
+    private final Config<E> configHolder;
     private final List<E> enumConstants;
 
-    public EnumSettingsButton(ConfigHolder<E> configHolder) {
+    public EnumSettingsButton(Config<E> configHolder) {
         super(
                 0,
                 7,
-                getWidth(configHolder.getType()),
+                getWidth(configHolder.getConfigHolder().getType()),
                 FontRenderer.getInstance().getFont().lineHeight + 8,
-                Component.literal(configHolder.getValueString()),
-                ComponentUtils.wrapTooltips(List.of(Component.literal(configHolder.getDescription())), 150));
+                Component.literal(configHolder.getConfigHolder().getValueString()),
+                ComponentUtils.wrapTooltips(
+                        List.of(Component.literal(configHolder.getConfigHolder().getDescription())), 150));
         this.configHolder = configHolder;
-        enumConstants =
-                EnumSet.allOf((Class<E>) configHolder.getType()).stream().toList();
+        enumConstants = EnumSet.allOf((Class<E>) configHolder.getConfigHolder().getType()).stream()
+                .toList();
     }
 
     @Override
@@ -47,11 +48,11 @@ public class EnumSettingsButton<E extends Enum<E>> extends GeneralSettingsButton
             return false;
         }
 
-        E value = configHolder.getValue();
+        E value = configHolder.getConfigHolder().getValue();
         int nextIndex = (enumConstants.indexOf(value) + addToIndex + enumConstants.size()) % enumConstants.size();
         E nextValue = enumConstants.get(nextIndex);
-        configHolder.setValue(nextValue);
-        setMessage(Component.literal(configHolder.getValueString()));
+        configHolder.getConfigHolder().setValue(nextValue);
+        setMessage(Component.literal(configHolder.getConfigHolder().getValueString()));
 
         playDownSound(McUtils.mc().getSoundManager());
 

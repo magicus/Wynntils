@@ -133,19 +133,19 @@ public final class ConfigManager extends Manager {
             holder.getOverlays().forEach(overlay -> overlay.addConfigOptions(this.getConfigOptions(overlay)));
         }
 
-        for (Config<?> holder : getConfigList()) {
+        for (Config<?> config : getConfigList()) {
             // option hasn't been saved to config
-            if (!configObject.has(holder.getJsonName())) {
+            if (!configObject.has(config.getJsonName())) {
                 if (resetIfNotFound) {
-                    holder.reset();
+                    config.reset();
                 }
                 continue;
             }
 
             // read value and update option
-            JsonElement holderJson = configObject.get(holder.getJsonName());
-            Object value = Managers.Json.GSON.fromJson(holderJson, holder.getType());
-            holder.restoreValue(value);
+            JsonElement configJson = configObject.get(config.getJsonName());
+            Object value = Managers.Json.GSON.fromJson(configJson, config.getType());
+            config.restoreValue(value);
         }
 
         // Newly created group overlays need to be enabled
@@ -170,17 +170,17 @@ public final class ConfigManager extends Manager {
 
     public void saveConfig() {
         // create json object, with entry for each option of each container
-        JsonObject holderJson = new JsonObject();
-        for (Config<?> holder : getConfigList()) {
-            if (!holder.valueChanged()) continue; // only save options that have been set by the user
-            Object value = holder.getValue();
+        JsonObject configJson = new JsonObject();
+        for (Config<?> config : getConfigList()) {
+            if (!config.valueChanged()) continue; // only save options that have been set by the user
+            Object value = config.getValue();
 
-            JsonElement holderElement = Managers.Json.GSON.toJsonTree(value);
-            holderJson.add(holder.getJsonName(), holderElement);
+            JsonElement configElement = Managers.Json.GSON.toJsonTree(value);
+            configJson.add(config.getJsonName(), configElement);
         }
 
         // Also save upfixer data
-        holderJson.add(
+        configJson.add(
                 Managers.ConfigUpfixer.UPFIXER_JSON_MEMBER_NAME,
                 configObject.get(Managers.ConfigUpfixer.UPFIXER_JSON_MEMBER_NAME));
 
@@ -196,23 +196,23 @@ public final class ConfigManager extends Manager {
             overlayGroups.add(holder.getConfigKey(), ids);
         }
 
-        holderJson.add(OVERLAY_GROUPS_JSON_KEY, overlayGroups);
+        configJson.add(OVERLAY_GROUPS_JSON_KEY, overlayGroups);
 
-        Managers.Json.savePreciousJson(userConfig, holderJson);
+        Managers.Json.savePreciousJson(userConfig, configJson);
     }
 
     private void saveDefaultConfig() {
         // create json object, with entry for each option of each container
-        JsonObject holderJson = new JsonObject();
-        for (Config<?> holder : getConfigList()) {
-            Object value = holder.getDefaultValue();
+        JsonObject configJson = new JsonObject();
+        for (Config<?> config : getConfigList()) {
+            Object value = config.getDefaultValue();
 
-            JsonElement holderElement = Managers.Json.GSON.toJsonTree(value);
-            holderJson.add(holder.getJsonName(), holderElement);
+            JsonElement configElement = Managers.Json.GSON.toJsonTree(value);
+            configJson.add(config.getJsonName(), configElement);
         }
 
-        WynntilsMod.info("Creating default config file with " + holderJson.size() + " config values.");
-        Managers.Json.savePreciousJson(DEFAULT_CONFIG, holderJson);
+        WynntilsMod.info("Creating default config file with " + configJson.size() + " config values.");
+        Managers.Json.savePreciousJson(DEFAULT_CONFIG, configJson);
     }
 
     private <P extends Configurable & Translatable> List<Config<?>> getConfigOptions(P parent) {

@@ -20,4 +20,10 @@ public class Config<T> extends PersistedValue<T> {
     public void updateConfig(T value) {
         this.value = value;
     }
+
+    // This must only be called by StorageManager when restoring value from disk
+    @SuppressWarnings("unchecked")
+    void restoreValue(Object value) {
+        this.value = (T) value;
+    }
 }

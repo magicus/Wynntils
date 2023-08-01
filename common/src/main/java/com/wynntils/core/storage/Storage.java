@@ -18,7 +18,7 @@ public class Storage<T> extends PersistedValue<T> {
 
     // This must only be called by StorageManager when restoring value from disk
     @SuppressWarnings("unchecked")
-    void set(Object value) {
+    void restoreValue(Object value) {
         this.value = (T) value;
     }
 }

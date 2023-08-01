@@ -5,7 +5,7 @@
 package com.wynntils.core.consumers.functions;
 
 import com.google.common.base.CaseFormat;
-import com.wynntils.core.consumers.features.Translatable;
+import com.wynntils.core.consumers.Translatable;
 import com.wynntils.core.consumers.functions.arguments.FunctionArguments;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;

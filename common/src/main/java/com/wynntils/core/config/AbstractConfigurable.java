@@ -2,10 +2,9 @@
  * Copyright © Wynntils 2022-2023.
  * This file is released under AGPLv3. See LICENSE for full license details.
  */
-package com.wynntils.core.consumers.features;
+package com.wynntils.core.config;
 
 import com.google.common.base.CaseFormat;
-import com.wynntils.core.config.Config;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

@@ -5,8 +5,7 @@
 package com.wynntils.core.config;
 
 import com.wynntils.core.components.Managers;
-import com.wynntils.core.consumers.features.Configurable;
-import com.wynntils.core.consumers.features.Translatable;
+import com.wynntils.core.consumers.Translatable;
 import com.wynntils.core.json.PersistedValue;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;

@@ -14,7 +14,7 @@ public class CustomCommandKeybindSlashStartUpfixer implements ConfigUpfixer {
     private static final String CUSTOM_COMMAND_OBJECT_NAME = "customCommandKeybindsFeature.keybindCommand";
 
     @Override
-    public boolean apply(JsonObject configObject, Set<Config<?>> configHolders) {
+    public boolean apply(JsonObject configObject, Set<Config<?>> configs) {
         // There are 6 custom commands in the config, and they all start the same way.
         for (int i = 1; i <= 6; i++) {
             String name = CUSTOM_COMMAND_OBJECT_NAME + i;

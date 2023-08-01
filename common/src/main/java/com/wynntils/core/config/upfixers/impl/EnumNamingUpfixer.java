@@ -32,8 +32,8 @@ public class EnumNamingUpfixer implements ConfigUpfixer {
             .create();
 
     @Override
-    public boolean apply(JsonObject configObject, Set<Config<?>> configHolders) {
-        for (Config<?> config : configHolders) {
+    public boolean apply(JsonObject configObject, Set<Config<?>> configs) {
+        for (Config<?> config : configs) {
             String jsonName = config.getJsonName();
             if (!configObject.has(jsonName)) continue;
 

@@ -11,7 +11,7 @@ import java.util.Set;
 
 @FunctionalInterface
 public interface ConfigUpfixer {
-    boolean apply(JsonObject configObject, Set<Config<?>> configHolders);
+    boolean apply(JsonObject configObject, Set<Config<?>> configs);
 
     default String getUpfixerName() {
         return CaseFormat.UPPER_CAMEL

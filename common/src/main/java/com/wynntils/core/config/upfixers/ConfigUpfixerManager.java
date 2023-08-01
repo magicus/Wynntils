@@ -51,16 +51,16 @@ public class ConfigUpfixerManager extends Manager {
      * Runs all registered upfixers on the given config object.
      *
      * @param configObject  The config object to run upfixers on.
-     * @param configHolders All registered configHolders
+     * @param configs All registered configs
      */
-    public boolean runUpfixers(JsonObject configObject, Set<Config<?>> configHolders) {
+    public boolean runUpfixers(JsonObject configObject, Set<Config<?>> configs) {
         List<ConfigUpfixer> missingUpfixers = getMissingUpfixers(configObject);
 
         boolean anyChange = false;
 
         for (ConfigUpfixer upfixer : missingUpfixers) {
             try {
-                if (upfixer.apply(configObject, configHolders)) {
+                if (upfixer.apply(configObject, configs)) {
                     anyChange = true;
                     addUpfixerToConfig(configObject, upfixer);
                     WynntilsMod.info("Applied upfixer \"" + upfixer.getUpfixerName() + "\" to config.");

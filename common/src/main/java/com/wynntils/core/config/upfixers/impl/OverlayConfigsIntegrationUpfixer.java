@@ -45,7 +45,7 @@ public class OverlayConfigsIntegrationUpfixer extends RenamedKeysUpfixer {
     }
 
     @Override
-    public boolean apply(JsonObject configObject, Set<Config<?>> configHolders) {
+    public boolean apply(JsonObject configObject, Set<Config<?>> configs) {
         // Special handling of config that split in two
         String oldName = "objectivesOverlayFeature.disableObjectiveTrackingOnScoreboard";
         if (configObject.has(oldName)) {
@@ -54,6 +54,6 @@ public class OverlayConfigsIntegrationUpfixer extends RenamedKeysUpfixer {
             configObject.add(newName, jsonElement);
         }
 
-        return super.apply(configObject, configHolders);
+        return super.apply(configObject, configs);
     }
 }

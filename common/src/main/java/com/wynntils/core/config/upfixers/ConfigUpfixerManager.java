@@ -22,7 +22,6 @@ import com.wynntils.core.config.upfixers.impl.QuestBookToContentRenamedConfigsUp
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ConfigUpfixerManager extends Manager {
     public static final String UPFIXER_JSON_MEMBER_NAME = "wynntils.upfixers";
@@ -61,9 +60,7 @@ public class ConfigUpfixerManager extends Manager {
 
         for (ConfigUpfixer upfixer : missingUpfixers) {
             try {
-                if (upfixer.apply(
-                        configObject,
-                        configHolders.stream().map(Config::getConfigHolder).collect(Collectors.toSet()))) {
+                if (upfixer.apply(configObject, configHolders)) {
                     anyChange = true;
                     addUpfixerToConfig(configObject, upfixer);
                     WynntilsMod.info("Applied upfixer \"" + upfixer.getUpfixerName() + "\" to config.");

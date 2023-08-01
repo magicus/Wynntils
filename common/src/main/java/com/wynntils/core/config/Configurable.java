@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface Configurable {
-    void updateConfigOption(ConfigHolder<?> configHolder);
+    void updateConfigOption(Config<?> configHolder);
 
     /** Registers the configurable's config options. Called by ConfigManager when loaded */
     void addConfigOptions(List<Config<?>> options);

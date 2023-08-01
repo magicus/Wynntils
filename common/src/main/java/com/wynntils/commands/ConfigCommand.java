@@ -12,7 +12,6 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.config.Config;
-import com.wynntils.core.config.ConfigHolder;
 import com.wynntils.core.config.OverlayGroupHolder;
 import com.wynntils.core.consumers.commands.Command;
 import com.wynntils.core.consumers.features.Feature;
@@ -105,14 +104,13 @@ public class ConfigCommand extends Command {
                 String featureName = context.getArgument("feature", String.class);
                 String configName = context.getArgument("config", String.class);
 
-                ConfigHolder<?> config = getConfigHolderFromArguments(context, featureName, configName)
-                        .getConfigHolder();
+                Config<?> config = getConfigHolderFromArguments(context, featureName, configName);
 
                 if (config == null) {
                     return SharedSuggestionProvider.suggest(Stream.of(), builder);
                 }
 
-                return SharedSuggestionProvider.suggest(config.getValidLiterals(), builder);
+                return SharedSuggestionProvider.suggest(config.getConfigHolder().getValidLiterals(), builder);
             };
 
     private static final SuggestionProvider<CommandSourceStack> OVERLAY_CONFIG_VALUE_SUGGESTION_PROVIDER =
@@ -121,15 +119,13 @@ public class ConfigCommand extends Command {
                 String overlayName = context.getArgument("overlay", String.class);
                 String configName = context.getArgument("config", String.class);
 
-                ConfigHolder<?> config = getOverlayConfigHolderFromArguments(
-                                context, featureName, overlayName, configName)
-                        .getConfigHolder();
+                Config<?> config = getOverlayConfigHolderFromArguments(context, featureName, overlayName, configName);
 
                 if (config == null) {
                     return SharedSuggestionProvider.suggest(Stream.of(), builder);
                 }
 
-                return SharedSuggestionProvider.suggest(config.getValidLiterals(), builder);
+                return SharedSuggestionProvider.suggest(config.getConfigHolder().getValidLiterals(), builder);
             };
 
     private static final SuggestionProvider<CommandSourceStack> OVERLAY_GROUP_SUGGESTION_PROVIDER =
@@ -365,14 +361,13 @@ public class ConfigCommand extends Command {
         String overlayName = context.getArgument("overlay", String.class);
         String configName = context.getArgument("config", String.class);
 
-        ConfigHolder<?> config = getOverlayConfigHolderFromArguments(context, featureName, overlayName, configName)
-                .getConfigHolder();
+        Config<?> config = getOverlayConfigHolderFromArguments(context, featureName, overlayName, configName);
 
         if (config == null) {
             return 0;
         }
 
-        config.reset();
+        config.getConfigHolder().reset();
 
         Managers.Config.saveConfig();
 
@@ -380,7 +375,8 @@ public class ConfigCommand extends Command {
                 .sendSuccess(
                         Component.literal("Successfully reset ")
                                 .withStyle(ChatFormatting.GREEN)
-                                .append(Component.literal(config.getDisplayName())
+                                .append(Component.literal(
+                                                config.getConfigHolder().getDisplayName())
                                         .withStyle(ChatFormatting.UNDERLINE)
                                         .withStyle(ChatFormatting.YELLOW))
                                 .append(Component.literal(".").withStyle(ChatFormatting.GREEN)),
@@ -396,7 +392,7 @@ public class ConfigCommand extends Command {
         Overlay overlay = getOverlayFromArguments(context, featureName, overlayName);
         if (overlay == null) return 0;
 
-        overlay.getConfigOptions().stream().map(Config::getConfigHolder).forEach(ConfigHolder::reset);
+        overlay.getConfigOptions().stream().forEach(c -> c.getConfigHolder().reset());
 
         Managers.Config.saveConfig();
 
@@ -422,7 +418,7 @@ public class ConfigCommand extends Command {
                 .append(Component.literal("'s config options:\n").withStyle(ChatFormatting.WHITE));
 
         for (Config<?> config : overlay.getVisibleConfigOptions()) {
-            MutableComponent current = getComponentForConfigHolder(config.getConfigHolder());
+            MutableComponent current = getComponentForConfigHolder(config);
 
             current.withStyle(style -> style.withClickEvent(new ClickEvent(
                     ClickEvent.Action.SUGGEST_COMMAND,
@@ -442,9 +438,7 @@ public class ConfigCommand extends Command {
         String overlayName = context.getArgument("overlay", String.class);
         String configName = context.getArgument("config", String.class);
 
-        ConfigHolder<?> configHolder = getOverlayConfigHolderFromArguments(
-                        context, featureName, overlayName, configName)
-                .getConfigHolder();
+        Config<?> configHolder = getOverlayConfigHolderFromArguments(context, featureName, overlayName, configName);
 
         if (configHolder == null) {
             return 0;
@@ -470,8 +464,7 @@ public class ConfigCommand extends Command {
         String overlayName = context.getArgument("overlay", String.class);
         String configName = context.getArgument("config", String.class);
 
-        ConfigHolder<?> config = getOverlayConfigHolderFromArguments(context, featureName, overlayName, configName)
-                .getConfigHolder();
+        Config<?> config = getOverlayConfigHolderFromArguments(context, featureName, overlayName, configName);
 
         return changeConfig(context, config);
     }
@@ -480,8 +473,7 @@ public class ConfigCommand extends Command {
         String featureName = context.getArgument("feature", String.class);
         String configName = context.getArgument("config", String.class);
 
-        ConfigHolder<?> configHolder =
-                getConfigHolderFromArguments(context, featureName, configName).getConfigHolder();
+        Config<?> configHolder = getConfigHolderFromArguments(context, featureName, configName);
 
         if (configHolder == null) {
             return 0;
@@ -513,7 +505,7 @@ public class ConfigCommand extends Command {
                 .append(Component.literal("'s config options:\n").withStyle(ChatFormatting.WHITE));
 
         for (Config<?> config : feature.getVisibleConfigOptions()) {
-            MutableComponent current = getComponentForConfigHolder(config.getConfigHolder());
+            MutableComponent current = getComponentForConfigHolder(config);
 
             current.withStyle(style -> style.withClickEvent(new ClickEvent(
                     ClickEvent.Action.SUGGEST_COMMAND,
@@ -548,19 +540,18 @@ public class ConfigCommand extends Command {
         String featureName = context.getArgument("feature", String.class);
         String configName = context.getArgument("config", String.class);
 
-        ConfigHolder<?> config =
-                getConfigHolderFromArguments(context, featureName, configName).getConfigHolder();
+        Config<?> config = getConfigHolderFromArguments(context, featureName, configName);
 
         return changeConfig(context, config);
     }
 
-    private static <T> int changeConfig(CommandContext<CommandSourceStack> context, ConfigHolder<T> config) {
+    private static <T> int changeConfig(CommandContext<CommandSourceStack> context, Config<T> config) {
         if (config == null) {
             return 0;
         }
 
         String newValue = context.getArgument("newValue", String.class);
-        T parsedValue = config.tryParseStringValue(newValue);
+        T parsedValue = config.getConfigHolder().tryParseStringValue(newValue);
 
         if (parsedValue == null) {
             context.getSource()
@@ -569,8 +560,8 @@ public class ConfigCommand extends Command {
             return 0;
         }
 
-        T oldValue = config.getValue();
-        String oldValueString = config.getValueString();
+        T oldValue = config.getConfigHolder().getValue();
+        String oldValueString = config.getConfigHolder().getValueString();
 
         if (Objects.equals(oldValue, parsedValue)) {
             context.getSource()
@@ -579,8 +570,8 @@ public class ConfigCommand extends Command {
             return 0;
         }
 
-        config.setValue(parsedValue);
-        String newValueString = config.getValueString();
+        config.getConfigHolder().setValue(parsedValue);
+        String newValueString = config.getConfigHolder().getValueString();
 
         Managers.Config.saveConfig();
 
@@ -588,7 +579,8 @@ public class ConfigCommand extends Command {
                 .sendSuccess(
                         Component.literal("Successfully set ")
                                 .withStyle(ChatFormatting.GREEN)
-                                .append(Component.literal(config.getDisplayName())
+                                .append(Component.literal(
+                                                config.getConfigHolder().getDisplayName())
                                         .withStyle(ChatFormatting.UNDERLINE)
                                         .withStyle(ChatFormatting.YELLOW))
                                 .append(Component.literal(" from ").withStyle(ChatFormatting.GREEN))
@@ -609,14 +601,13 @@ public class ConfigCommand extends Command {
         String featureName = context.getArgument("feature", String.class);
         String configName = context.getArgument("config", String.class);
 
-        ConfigHolder<?> config =
-                getConfigHolderFromArguments(context, featureName, configName).getConfigHolder();
+        Config<?> config = getConfigHolderFromArguments(context, featureName, configName);
 
         if (config == null) {
             return 0;
         }
 
-        config.reset();
+        config.getConfigHolder().reset();
 
         Managers.Config.saveConfig();
 
@@ -624,7 +615,8 @@ public class ConfigCommand extends Command {
                 .sendSuccess(
                         Component.literal("Successfully reset ")
                                 .withStyle(ChatFormatting.GREEN)
-                                .append(Component.literal(config.getDisplayName())
+                                .append(Component.literal(
+                                                config.getConfigHolder().getDisplayName())
                                         .withStyle(ChatFormatting.UNDERLINE)
                                         .withStyle(ChatFormatting.YELLOW))
                                 .append(Component.literal(".").withStyle(ChatFormatting.GREEN)),
@@ -738,17 +730,18 @@ public class ConfigCommand extends Command {
         return group.get();
     }
 
-    private MutableComponent getComponentForConfigHolder(ConfigHolder<?> config) {
-        String configNameString = config.getDisplayName();
-        String configTypeString = " (" + ((Class<?>) config.getType()).getSimpleName() + ")";
-        String valueString = config.getValueString();
+    private MutableComponent getComponentForConfigHolder(Config<?> config) {
+        String configNameString = config.getConfigHolder().getDisplayName();
+        String configTypeString = " (" + ((Class<?>) config.getConfigHolder().getType()).getSimpleName() + ")";
+        String valueString = config.getConfigHolder().getValueString();
 
         return Component.literal("\n - ")
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(configNameString)
                         .withStyle(style -> style.withHoverEvent(new HoverEvent(
                                 HoverEvent.Action.SHOW_TEXT,
-                                Component.literal("Description: " + config.getDescription())
+                                Component.literal("Description: "
+                                                + config.getConfigHolder().getDescription())
                                         .withStyle(ChatFormatting.LIGHT_PURPLE))))
                         .withStyle(ChatFormatting.YELLOW)
                         .append(Component.literal(configTypeString).withStyle(ChatFormatting.WHITE))
@@ -766,14 +759,15 @@ public class ConfigCommand extends Command {
                 .append(Component.literal(overlay.getShortName()).withStyle(ChatFormatting.AQUA));
     }
 
-    private MutableComponent getSpecificConfigComponent(ConfigHolder<?> config) {
-        String valueString = config.getValueString();
-        String configTypeString = "(" + ((Class<?>) config.getType()).getSimpleName() + ")";
+    private MutableComponent getSpecificConfigComponent(Config<?> config) {
+        String valueString = config.getConfigHolder().getValueString();
+        String configTypeString = "(" + ((Class<?>) config.getConfigHolder().getType()).getSimpleName() + ")";
 
         MutableComponent response = Component.literal("");
         response.append(Component.literal("Config option: ")
                 .withStyle(ChatFormatting.WHITE)
-                .append(Component.literal(config.getDisplayName()).withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal(config.getConfigHolder().getDisplayName())
+                        .withStyle(ChatFormatting.YELLOW))
                 .append("\n"));
 
         response.append(Component.literal("Value: ")
@@ -784,7 +778,7 @@ public class ConfigCommand extends Command {
                 .append("\n");
         response.append(Component.literal("Description: ")
                         .withStyle(ChatFormatting.WHITE)
-                        .append(Component.literal(config.getDescription())))
+                        .append(Component.literal(config.getConfigHolder().getDescription())))
                 .append("\n");
         return response;
     }

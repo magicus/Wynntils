@@ -97,16 +97,16 @@ public abstract class Feature extends AbstractConfigurable implements Storageabl
     }
 
     @Override
-    public final void updateConfigOption(ConfigHolder<?> configHolder) {
+    public final void updateConfigOption(Config<?> configHolder) {
         // if user toggle was changed, enable/disable feature accordingly
-        if (configHolder.getFieldName().equals("userEnabled")) {
+        if (configHolder.getConfigHolder().getFieldName().equals("userEnabled")) {
             // Toggling before init does not do anything, so we don't worry about it for now
             tryUserToggle();
             return;
         }
 
         // otherwise, trigger regular config update
-        callOnConfigUpdate(configHolder);
+        callOnConfigUpdate(configHolder.getConfigHolder());
     }
 
     /** Updates the feature's enabled/disabled state to match the user's setting, if necessary */

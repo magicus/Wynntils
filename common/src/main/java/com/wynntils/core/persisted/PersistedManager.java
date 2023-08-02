@@ -64,7 +64,7 @@ public final class PersistedManager extends Manager {
 
     public void registerPersistedable(PersistedOwner persistedOwner) {
         Field[] annotatedPersisteds =
-                FieldUtils.getFieldsWithAnnotation(persistedOwner.getClass(), RegisterPersisted.class);
+                FieldUtils.getFieldsWithAnnotation(persistedOwner.getClass(), Persisted.class);
         for (Field field : annotatedPersisteds) {
             try {
                 Object fieldValue = FieldUtils.readField(field, persistedOwner, true);
@@ -83,10 +83,10 @@ public final class PersistedManager extends Manager {
 
         for (Field persistedField : persistedFields) {
             try {
-                RegisterPersisted persistedInfo = Arrays.stream(annotatedPersisteds)
+                Persisted persistedInfo = Arrays.stream(annotatedPersisteds)
                         .filter(f -> f.equals(persistedField))
                         .findFirst()
-                        .map(f -> f.getAnnotation(RegisterPersisted.class))
+                        .map(f -> f.getAnnotation(Persisted.class))
                         .orElse(null);
                 if (persistedInfo == null) {
                     throw new RuntimeException(

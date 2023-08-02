@@ -13,12 +13,12 @@ import com.wynntils.core.components.Managers;
 import com.wynntils.core.consumers.features.Configurable;
 import com.wynntils.core.consumers.features.Feature;
 import com.wynntils.core.consumers.features.FeatureManager;
-import com.wynntils.core.consumers.features.Translatable;
 import com.wynntils.core.consumers.overlays.DynamicOverlay;
 import com.wynntils.core.consumers.overlays.Overlay;
 import com.wynntils.core.consumers.overlays.OverlayManager;
 import com.wynntils.core.json.JsonManager;
 import com.wynntils.core.persisted.Persisted;
+import com.wynntils.core.persisted.PersistedOwner;
 import com.wynntils.core.persisted.upfixers.ConfigUpfixerManager;
 import com.wynntils.utils.JsonUtils;
 import com.wynntils.utils.mc.McUtils;
@@ -87,9 +87,11 @@ public final class ConfigManager extends Manager {
         }
     }
 
-    private <P extends Configurable & Translatable> void registerConfigOptions(P configurable) {
-        List<Config<?>> configs = getConfigOptions(configurable);
+    private void registerConfigOptions(Configurable configurable) {
+        // FIXME: Hook this in here for the time being
+        Managers.Persisted.registerOwner(configurable);
 
+        List<Config<?>> configs = getConfigOptions(configurable);
         configurable.addConfigOptions(configs);
         CONFIGS.addAll(configs);
     }
@@ -219,9 +221,7 @@ public final class ConfigManager extends Manager {
         Managers.Json.savePreciousJson(DEFAULT_CONFIG, configJson);
     }
 
-    private <P extends Configurable & Translatable> List<Config<?>> getConfigOptions(P owner) {
-        Managers.Persisted.verifyAnnotations(owner);
-
+    private List<Config<?>> getConfigOptions(PersistedOwner owner) {
         List<Config<?>> options = new ArrayList<>();
         options.addAll(Managers.Persisted.getPersisted(owner, Config.class).stream()
                 .map(p -> processConfig(owner, p.a(), p.b()))
@@ -229,16 +229,13 @@ public final class ConfigManager extends Manager {
         return options;
     }
 
-    private static <P extends Configurable & Translatable> Config<?> processConfig(
-            P owner, Field configField, Persisted configInfo) {
+    private static Config<?> processConfig(PersistedOwner owner, Field configField, Persisted configInfo) {
         Config<?> configObj;
         try {
             configObj = (Config<?>) FieldUtils.readField(configField, owner, true);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Cannot read Config field: " + configField, e);
         }
-
-        configObj.createConfigHolder(owner, configField, configInfo);
 
         if (WynntilsMod.isDevelopmentEnvironment()) {
             if (configObj.isVisible()) {

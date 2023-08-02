@@ -4,4 +4,8 @@
  */
 package com.wynntils.core.persisted;
 
-public interface PersistedOwner {}
+public interface PersistedOwner {
+    // String getPersistedJsonName();
+
+    // default void onPersistedLoad() {}
+}

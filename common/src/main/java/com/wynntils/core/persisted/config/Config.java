@@ -6,17 +6,13 @@ package com.wynntils.core.persisted.config;
 
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.consumers.features.Configurable;
-import com.wynntils.core.consumers.features.Translatable;
-import com.wynntils.core.persisted.Persisted;
+import com.wynntils.core.persisted.OldPersistedMetadata;
 import com.wynntils.core.persisted.PersistedMetadata;
 import com.wynntils.core.persisted.PersistedValue;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.stream.Stream;
 
 public class Config<T> extends PersistedValue<T> implements Comparable<Config<T>> {
-    private PersistedMetadata<T> persistedMetadata;
-
     public Config(T value) {
         super(value);
     }
@@ -26,15 +22,20 @@ public class Config<T> extends PersistedValue<T> implements Comparable<Config<T>
         Managers.Config.saveConfig();
     }
 
-    <P extends Configurable & Translatable> void createConfigHolder(P parent, Field configField, Persisted configInfo) {
-        Type valueType = Managers.Json.getJsonValueType(configField);
-        String fieldName = configField.getName();
+    private PersistedMetadata<T> getPersistedMetadata() {
+        return Managers.Persisted.getMetadata(this);
+    }
 
-        boolean visible = !(this instanceof HiddenConfig<?>);
-
-        String i18nKey = configInfo.i18nKey();
-
-        persistedMetadata = new PersistedMetadata<>(parent, this, fieldName, i18nKey, visible, valueType);
+    private OldPersistedMetadata<T> getOldPersistedMetadata() {
+        PersistedMetadata<T> metadata = getPersistedMetadata();
+        boolean isVisible = this instanceof HiddenConfig<T>;
+        return new OldPersistedMetadata<T>(
+                (Configurable) metadata.getOwner(),
+                this,
+                metadata.getFieldName(),
+                metadata.getI18nKey(),
+                isVisible,
+                metadata.getValueType());
     }
 
     @Override
@@ -43,11 +44,11 @@ public class Config<T> extends PersistedValue<T> implements Comparable<Config<T>
     }
 
     public Stream<String> getValidLiterals() {
-        return getPersistedMetadata().getValidLiterals();
+        return getOldPersistedMetadata().getValidLiterals();
     }
 
     public Type getType() {
-        return getPersistedMetadata().getType();
+        return getPersistedMetadata().getValueType();
     }
 
     public String getFieldName() {
@@ -55,7 +56,7 @@ public class Config<T> extends PersistedValue<T> implements Comparable<Config<T>
     }
 
     public Configurable getParent() {
-        return getPersistedMetadata().getParent();
+        return (Configurable) getPersistedMetadata().getOwner();
     }
 
     public String getJsonName() {
@@ -63,27 +64,27 @@ public class Config<T> extends PersistedValue<T> implements Comparable<Config<T>
     }
 
     public boolean isVisible() {
-        return getPersistedMetadata().isVisible();
+        return getOldPersistedMetadata().isVisible();
     }
 
     public String getDisplayName() {
-        return getPersistedMetadata().getDisplayName();
+        return getOldPersistedMetadata().getDisplayName();
     }
 
     public String getDescription() {
-        return getPersistedMetadata().getDescription();
+        return getOldPersistedMetadata().getDescription();
     }
 
     public T getValue() {
-        return getPersistedMetadata().getValue();
+        return getOldPersistedMetadata().getValue();
     }
 
     public String getValueString() {
-        return getPersistedMetadata().getValueString();
+        return getOldPersistedMetadata().getValueString();
     }
 
     public boolean isEnum() {
-        return getPersistedMetadata().isEnum();
+        return getOldPersistedMetadata().isEnum();
     }
 
     public T getDefaultValue() {
@@ -91,26 +92,22 @@ public class Config<T> extends PersistedValue<T> implements Comparable<Config<T>
     }
 
     public void setValue(T value) {
-        getPersistedMetadata().setValue(value);
+        getOldPersistedMetadata().setValue(value);
     }
 
     void restoreValue(Object value) {
-        getPersistedMetadata().restoreValue(value);
+        getOldPersistedMetadata().restoreValue(value);
     }
 
     public boolean valueChanged() {
-        return getPersistedMetadata().valueChanged();
+        return getOldPersistedMetadata().valueChanged();
     }
 
     public void reset() {
-        getPersistedMetadata().reset();
+        getOldPersistedMetadata().reset();
     }
 
     public T tryParseStringValue(String value) {
-        return getPersistedMetadata().tryParseStringValue(value);
-    }
-
-    private PersistedMetadata<T> getPersistedMetadata() {
-        return persistedMetadata;
+        return getOldPersistedMetadata().tryParseStringValue(value);
     }
 }

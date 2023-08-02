@@ -10,10 +10,10 @@ import com.wynntils.core.WynntilsMod;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.consumers.Translatable;
 import com.wynntils.core.mod.type.CrashType;
+import com.wynntils.core.persisted.Persisted;
 import com.wynntils.core.persisted.config.AbstractConfigurable;
 import com.wynntils.core.persisted.config.Category;
 import com.wynntils.core.persisted.config.Config;
-import com.wynntils.core.persisted.config.RegisterConfig;
 import com.wynntils.core.persisted.storage.Storageable;
 import net.minecraft.client.resources.language.I18n;
 
@@ -24,7 +24,7 @@ import net.minecraft.client.resources.language.I18n;
 public abstract class Feature extends AbstractConfigurable implements Storageable, Translatable, Comparable<Feature> {
     private Category category = Category.UNCATEGORIZED;
 
-    @RegisterConfig(i18nKey = "feature.wynntils.userFeature.userEnabled")
+    @Persisted(i18nKey = "feature.wynntils.userFeature.userEnabled")
     public final Config<Boolean> userEnabled = new Config<>(true);
 
     public Category getCategory() {

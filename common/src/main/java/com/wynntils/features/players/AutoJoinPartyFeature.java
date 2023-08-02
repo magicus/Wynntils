@@ -7,10 +7,10 @@ package com.wynntils.features.players;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.components.Models;
 import com.wynntils.core.consumers.features.Feature;
+import com.wynntils.core.persisted.Persisted;
 import com.wynntils.core.persisted.config.Category;
 import com.wynntils.core.persisted.config.Config;
 import com.wynntils.core.persisted.config.ConfigCategory;
-import com.wynntils.core.persisted.config.RegisterConfig;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.players.event.PartyEvent;
 import com.wynntils.utils.mc.McUtils;
@@ -19,7 +19,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @ConfigCategory(Category.PLAYERS)
 public class AutoJoinPartyFeature extends Feature {
-    @RegisterConfig
+    @Persisted
     public final Config<Boolean> onlyFriends = new Config<>(true);
 
     @SubscribeEvent

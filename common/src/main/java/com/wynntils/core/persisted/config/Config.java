@@ -6,6 +6,7 @@ package com.wynntils.core.persisted.config;
 
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.consumers.Translatable;
+import com.wynntils.core.persisted.Persisted;
 import com.wynntils.core.persisted.PersistedValue;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -18,8 +19,7 @@ public class Config<T> extends PersistedValue<T> implements Comparable<Config<T>
         super(value);
     }
 
-    <P extends Configurable & Translatable> void createConfigHolder(
-            P parent, Field configField, RegisterConfig configInfo) {
+    <P extends Configurable & Translatable> void createConfigHolder(P parent, Field configField, Persisted configInfo) {
         Type valueType = Managers.Json.getJsonValueType(configField);
         String fieldName = configField.getName();
 

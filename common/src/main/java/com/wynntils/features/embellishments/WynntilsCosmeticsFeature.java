@@ -7,17 +7,17 @@ package com.wynntils.features.embellishments;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.components.Services;
 import com.wynntils.core.consumers.features.Feature;
+import com.wynntils.core.persisted.Persisted;
 import com.wynntils.core.persisted.config.Category;
 import com.wynntils.core.persisted.config.Config;
 import com.wynntils.core.persisted.config.ConfigCategory;
-import com.wynntils.core.persisted.config.RegisterConfig;
 import com.wynntils.mc.event.PlayerRenderLayerEvent;
 import com.wynntils.utils.mc.McUtils;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @ConfigCategory(Category.EMBELLISHMENTS)
 public class WynntilsCosmeticsFeature extends Feature {
-    @RegisterConfig
+    @Persisted
     public final Config<Boolean> renderOwnCape = new Config<>(true);
 
     @SubscribeEvent

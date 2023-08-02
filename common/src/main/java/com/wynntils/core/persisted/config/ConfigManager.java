@@ -16,6 +16,7 @@ import com.wynntils.core.consumers.features.FeatureManager;
 import com.wynntils.core.consumers.overlays.DynamicOverlay;
 import com.wynntils.core.consumers.overlays.Overlay;
 import com.wynntils.core.consumers.overlays.OverlayManager;
+import com.wynntils.core.persisted.Persisted;
 import com.wynntils.core.persisted.json.JsonManager;
 import com.wynntils.core.persisted.upfixers.ConfigUpfixerManager;
 import com.wynntils.utils.JsonUtils;
@@ -218,16 +219,15 @@ public final class ConfigManager extends Manager {
     private <P extends Configurable & Translatable> List<Config<?>> getConfigOptions(P parent) {
         List<Config<?>> options = new ArrayList<>();
 
-        Field[] annotatedConfigs = FieldUtils.getFieldsWithAnnotation(parent.getClass(), RegisterConfig.class);
+        Field[] annotatedConfigs = FieldUtils.getFieldsWithAnnotation(parent.getClass(), Persisted.class);
         for (Field field : annotatedConfigs) {
             try {
                 Object fieldValue = FieldUtils.readField(field, parent, true);
                 if (!(fieldValue instanceof Config)) {
-                    throw new RuntimeException(
-                            "A non-Config class was marked with @RegisterConfig annotation: " + field);
+                    throw new RuntimeException("A non-Config class was marked with @Persisted annotation: " + field);
                 }
             } catch (IllegalAccessException e) {
-                throw new RuntimeException("Failed to read @RegisterConfig annotated field: " + field, e);
+                throw new RuntimeException("Failed to read @Persisted annotated field: " + field, e);
             }
         }
 
@@ -237,13 +237,13 @@ public final class ConfigManager extends Manager {
                 .toList();
 
         for (Field configField : configFields) {
-            RegisterConfig configInfo = Arrays.stream(annotatedConfigs)
+            Persisted configInfo = Arrays.stream(annotatedConfigs)
                     .filter(f -> f.equals(configField))
                     .findFirst()
-                    .map(f -> f.getAnnotation(RegisterConfig.class))
+                    .map(f -> f.getAnnotation(Persisted.class))
                     .orElse(null);
             if (configInfo == null) {
-                throw new RuntimeException("A Config is missing @RegisterConfig annotation:" + configField);
+                throw new RuntimeException("A Config is missing @Persisted annotation:" + configField);
             }
             Config<?> configObj;
             try {

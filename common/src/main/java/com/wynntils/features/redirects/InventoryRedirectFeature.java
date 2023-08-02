@@ -7,10 +7,10 @@ package com.wynntils.features.redirects;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.consumers.features.Feature;
 import com.wynntils.core.notifications.MessageContainer;
+import com.wynntils.core.persisted.Persisted;
 import com.wynntils.core.persisted.config.Category;
 import com.wynntils.core.persisted.config.Config;
 import com.wynntils.core.persisted.config.ConfigCategory;
-import com.wynntils.core.persisted.config.RegisterConfig;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.SubtitleSetTextEvent;
 import com.wynntils.models.worlds.event.WorldStateEvent;
@@ -28,13 +28,13 @@ public class InventoryRedirectFeature extends Feature {
     private long lastEmeraldPouchPickup = 0;
     private MessageContainer emeraldPouchMessage = null;
 
-    @RegisterConfig
+    @Persisted
     public final Config<Boolean> redirectIngredientPouch = new Config<>(true);
 
-    @RegisterConfig
+    @Persisted
     public final Config<Boolean> redirectEmeraldPouch = new Config<>(true);
 
-    @RegisterConfig
+    @Persisted
     public final Config<Boolean> redirectPotionStack = new Config<>(true);
 
     @SubscribeEvent

@@ -21,4 +21,8 @@ public abstract class PersistedValue<T> {
     }
 
     public abstract void touched();
+
+    void restoreValue(Object value) {
+        store((T) value);
+    }
 }

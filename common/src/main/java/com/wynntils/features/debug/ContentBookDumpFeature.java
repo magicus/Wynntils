@@ -15,6 +15,7 @@ import com.wynntils.core.consumers.features.properties.StartDisabled;
 import com.wynntils.core.keybinds.KeyBind;
 import com.wynntils.core.persisted.config.Category;
 import com.wynntils.core.persisted.config.ConfigCategory;
+import com.wynntils.core.persisted.json.JsonManager;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.SetSpawnEvent;
 import com.wynntils.models.activities.type.ActivityDifficulty;

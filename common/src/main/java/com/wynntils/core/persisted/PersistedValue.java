@@ -5,6 +5,7 @@
 package com.wynntils.core.persisted;
 
 import com.wynntils.core.components.Managers;
+import java.lang.reflect.Type;
 
 public abstract class PersistedValue<T> implements Comparable<PersistedValue<T>> {
     protected T value;
@@ -33,6 +34,8 @@ public abstract class PersistedValue<T> implements Comparable<PersistedValue<T>>
         // Available after owner is registered in registerOwner()
         return Managers.Persisted.getMetadata(this).getJsonName();
     }
+
+    public abstract Type getType();
 
     @Override
     public int compareTo(PersistedValue<T> other) {

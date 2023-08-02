@@ -47,7 +47,7 @@ public class ConfigCommand extends Command {
 
                         return foundFeature
                                 .map(feature -> Managers.Overlay.getFeatureOverlays(feature).stream()
-                                        .map(Overlay::getConfigJsonName)
+                                        .map(Overlay::getPersistedJsonName)
                                         .iterator())
                                 .orElse(Collections.emptyIterator());
                     },
@@ -88,7 +88,8 @@ public class ConfigCommand extends Command {
 
                         Feature feature = featureOptional.get();
                         Optional<Overlay> overlayOptional = Managers.Overlay.getFeatureOverlays(feature).stream()
-                                .filter(overlay -> overlay.getConfigJsonName().equals(overlayName))
+                                .filter(overlay ->
+                                        overlay.getPersistedJsonName().equals(overlayName))
                                 .findFirst();
 
                         return overlayOptional
@@ -696,7 +697,7 @@ public class ConfigCommand extends Command {
         }
 
         Optional<Overlay> overlayOptional = Managers.Overlay.getFeatureOverlays(feature).stream()
-                .filter(overlay -> overlay.getConfigJsonName().equals(overlayName))
+                .filter(overlay -> overlay.getPersistedJsonName().equals(overlayName))
                 .findFirst();
 
         if (overlayOptional.isEmpty()) {

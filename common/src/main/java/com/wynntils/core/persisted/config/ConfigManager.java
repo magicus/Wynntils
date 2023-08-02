@@ -133,6 +133,9 @@ public final class ConfigManager extends Manager {
                 }
             }
 
+            // FIXME: Hook this in here for the time being
+            holder.getOverlays().forEach(Managers.Persisted::registerOwner);
+
             holder.getOverlays().forEach(overlay -> overlay.addConfigOptions(this.getConfigOptions(overlay)));
         }
 

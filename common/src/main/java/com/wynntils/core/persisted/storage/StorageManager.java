@@ -74,7 +74,7 @@ public final class StorageManager extends Manager {
 
     private void processStorage(Storageable owner, Field field, Persisted annotation) {
         try {
-            String baseName = owner.getStorageJsonName();
+            String baseName = owner.getPersistedJsonName();
             Storage<?> storage = (Storage<?>) FieldUtils.readField(field, owner, true);
             String jsonName = baseName + "." + field.getName();
             storages.put(jsonName, storage);

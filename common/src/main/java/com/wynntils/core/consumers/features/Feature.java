@@ -57,11 +57,6 @@ public abstract class Feature extends AbstractConfigurable implements Storageabl
         return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name);
     }
 
-    @Override
-    public String getStorageJsonName() {
-        return "feature." + getNameCamelCase();
-    }
-
     /** Used to react to config option updates */
     protected void onConfigUpdate(Config<?> config) {}
 

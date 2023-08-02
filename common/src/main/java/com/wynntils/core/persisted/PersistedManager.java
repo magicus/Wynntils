@@ -4,12 +4,14 @@
  */
 package com.wynntils.core.persisted;
 
+import com.google.common.base.CaseFormat;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.wynntils.core.WynntilsMod;
 import com.wynntils.core.components.Manager;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.consumers.features.FeatureManager;
+import com.wynntils.core.consumers.overlays.Overlay;
 import com.wynntils.core.json.JsonManager;
 import com.wynntils.core.mod.event.WynncraftConnectionEvent;
 import com.wynntils.core.persisted.config.Config;
@@ -20,9 +22,11 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +41,8 @@ public final class PersistedManager extends Manager {
     private final File userPersistedFile;
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-    private final Map<PersistedValue<?>, PersistedMetadata<?>> persisteds = new TreeMap<>();
+    private final Map<PersistedValue<?>, PersistedMetadata<?>> metadatas = new HashMap<>();
+    private final Set<PersistedValue<?>> persisteds = new TreeSet<>();
 
     private long lastPersisted;
     private boolean scheduledPersist;
@@ -52,19 +57,24 @@ public final class PersistedManager extends Manager {
     public void registerOwner(PersistedOwner owner) {
         Managers.Persisted.verifyAnnotations(owner);
 
+        Map<PersistedValue<?>, PersistedMetadata<?>> newMetadatas = new HashMap<>();
+
         Managers.Persisted.getPersisted(owner, Config.class).stream().forEach(p -> {
             Field configField = p.a();
             Config<?> configObj;
             try {
                 configObj = (Config<?>) FieldUtils.readField(configField, owner, true);
             } catch (IllegalAccessException e) {
-                throw new RuntimeException("Cannot read Config field: " + configField, e);
+                throw new RuntimeException("Cannot read persisted field: " + configField, e);
             }
 
             PersistedMetadata<?> metadata =
                     Managers.Persisted.createMetadata((PersistedValue<?>) configObj, owner, configField, p.b());
-            persisteds.put(configObj, metadata);
+            newMetadatas.put(configObj, metadata);
         });
+
+        metadatas.putAll(newMetadatas);
+        persisteds.addAll(newMetadatas.keySet());
     }
 
     public List<Pair<Field, Persisted>> getPersisted(PersistedOwner owner, Class<? extends PersistedValue> clazzType) {
@@ -105,16 +115,34 @@ public final class PersistedManager extends Manager {
         Type valueType = Managers.Json.getJsonValueType(configField);
         String fieldName = configField.getName();
 
-        String i18nKey = annotation.i18nKey();
+        String i18nKeyOverride = annotation.i18nKey();
 
-        T defaultValue = persisted.get();
-        boolean allowNull = persisted.get() instanceof NullableConfig;
+        // save default value to enable easy resetting
+        // We have to deep copy the value, so it is guaranteed that we detect changes
+        T defaultValue = Managers.Json.deepCopy(persisted.get(), valueType);
 
-        return new PersistedMetadata<T>(owner, fieldName, valueType, defaultValue, i18nKey, allowNull);
+        boolean allowNull = valueType instanceof Class<?> clazz && NullableConfig.class.isAssignableFrom(clazz);
+        if (defaultValue == null && !allowNull) {
+            throw new RuntimeException(
+                    "Default config value is null in " + owner.getPersistedJsonName() + "." + fieldName);
+        }
+
+        String jsonName = getPrefix(owner) + owner.getPersistedJsonName() + "." + fieldName;
+
+        return new PersistedMetadata<T>(
+                owner, fieldName, valueType, defaultValue, i18nKeyOverride, allowNull, jsonName);
+    }
+
+    private String getPrefix(PersistedOwner owner) {
+        // "featureName.overlayName.settingName" vs "featureName.settingName"
+        if (!(owner instanceof Overlay overlay)) return "";
+
+        String name = overlay.getDeclaringClassName();
+        return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name) + ".";
     }
 
     public <T> PersistedMetadata<T> getMetadata(PersistedValue<T> persisted) {
-        return (PersistedMetadata<T>) persisteds.get(persisted);
+        return (PersistedMetadata<T>) metadatas.get(persisted);
     }
 
     /// ============================================================================================
@@ -154,17 +182,17 @@ public final class PersistedManager extends Manager {
 
     private void readFromJson() {
         JsonObject persistedJson = Managers.Json.loadPreciousJson(userPersistedFile);
-        persisteds.forEach((persisted, metadata) -> {
+        metadatas.forEach((persisted, metadata) -> {
             String jsonName = metadata.getJsonName();
             if (!persistedJson.has(jsonName)) return;
 
             // read value and update option
             JsonElement jsonElem = persistedJson.get(jsonName);
-            Type valueType = persisteds.get(persisted).getValueType();
+            Type valueType = metadata.getValueType();
             Object value = Managers.Json.GSON.fromJson(jsonElem, valueType);
             setRaw(persisted, value);
 
-            PersistedOwner owner = persisteds.get(persisted).getOwner();
+            PersistedOwner owner = metadata.getOwner();
             // FIXME
             // owner.onPersistedLoad();
         });
@@ -173,9 +201,9 @@ public final class PersistedManager extends Manager {
     private void writeToJson() {
         JsonObject persistedJson = new JsonObject();
 
-        persisteds.forEach((persisted, metadata) -> {
+        metadatas.forEach((persisted, metadata) -> {
             String jsonName = metadata.getJsonName();
-            Type valueType = persisteds.get(persisted).getValueType();
+            Type valueType = metadata.getValueType();
             JsonElement jsonElem = Managers.Json.GSON.toJsonTree(persisted.get(), valueType);
             persistedJson.add(jsonName, jsonElem);
         });

@@ -4,8 +4,13 @@
  */
 package com.wynntils.core.persisted;
 
+import com.google.common.base.CaseFormat;
+
 public interface PersistedOwner {
-    // String getPersistedJsonName();
+    default String getPersistedJsonName() {
+        String name = this.getClass().getSimpleName();
+        return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name);
+    }
 
     // default void onPersistedLoad() {}
 }

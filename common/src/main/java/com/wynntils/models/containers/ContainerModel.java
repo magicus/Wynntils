@@ -6,8 +6,8 @@ package com.wynntils.models.containers;
 
 import com.wynntils.core.components.Model;
 import com.wynntils.core.components.Models;
-import com.wynntils.core.storage.RegisterStorage;
-import com.wynntils.core.storage.Storage;
+import com.wynntils.core.persisted.storage.RegisterStorage;
+import com.wynntils.core.persisted.storage.Storage;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.utils.type.Pair;
 import java.util.List;

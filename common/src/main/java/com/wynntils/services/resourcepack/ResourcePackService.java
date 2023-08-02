@@ -6,8 +6,8 @@ package com.wynntils.services.resourcepack;
 
 import com.google.common.hash.Hashing;
 import com.wynntils.core.components.Service;
-import com.wynntils.core.storage.RegisterStorage;
-import com.wynntils.core.storage.Storage;
+import com.wynntils.core.persisted.storage.RegisterStorage;
+import com.wynntils.core.persisted.storage.Storage;
 import com.wynntils.mc.event.ResourcePackClearEvent;
 import com.wynntils.mc.event.ResourcePackEvent;
 import com.wynntils.utils.mc.McUtils;

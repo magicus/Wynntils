@@ -21,4 +21,9 @@ public abstract class PersistedValue<T> {
         this.value = value;
         touched();
     }
+
+    @SuppressWarnings("unchecked")
+    void setRaw(Object value) {
+        this.value = (T) value;
+    }
 }

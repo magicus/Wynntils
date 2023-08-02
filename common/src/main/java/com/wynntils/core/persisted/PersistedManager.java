@@ -44,4 +44,8 @@ public class PersistedManager extends Manager {
                     }
                 });
     }
+
+    public void setRaw(PersistedValue<?> persisted, Object value) {
+        persisted.setRaw(value);
+    }
 }

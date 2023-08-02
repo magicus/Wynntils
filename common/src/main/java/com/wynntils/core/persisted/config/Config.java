@@ -26,12 +26,6 @@ public class Config<T> extends PersistedValue<T> implements Comparable<Config<T>
         Managers.Config.saveConfig();
     }
 
-    @Override
-    public void store(T value) {
-        this.value = value;
-        // For now, do not call touch() on configs
-    }
-
     <P extends Configurable & Translatable> void createConfigHolder(P parent, Field configField, Persisted configInfo) {
         Type valueType = Managers.Json.getJsonValueType(configField);
         String fieldName = configField.getName();

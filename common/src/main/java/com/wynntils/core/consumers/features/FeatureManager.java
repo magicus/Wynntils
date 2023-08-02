@@ -404,7 +404,9 @@ public final class FeatureManager extends Manager {
 
         // Determine if feature should be enabled & set default enabled value for user features
         boolean startDisabled = featureClass.isAnnotationPresent(StartDisabled.class);
-        feature.userEnabled.store(!startDisabled);
+        // FIXME: This is technically a circular dependency that we do not declare, but
+        // it will be fixed soon.
+        Managers.Persisted.setRaw(feature.userEnabled, !startDisabled);
 
         Managers.Overlay.discoverOverlays(feature);
         Managers.Overlay.discoverOverlayGroups(feature);

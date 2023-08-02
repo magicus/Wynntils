@@ -170,6 +170,9 @@ public final class ConfigManager extends Manager {
     }
 
     public void saveConfig() {
+        // Requesting to save before we have read the old config? Just skip it
+        if (configObject == null) return;
+
         // create json object, with entry for each option of each container
         JsonObject configJson = new JsonObject();
         for (Config<?> config : getConfigList()) {

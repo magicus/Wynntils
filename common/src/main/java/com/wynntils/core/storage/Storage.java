@@ -5,7 +5,7 @@
 package com.wynntils.core.storage;
 
 import com.wynntils.core.components.Managers;
-import com.wynntils.core.json.PersistedValue;
+import com.wynntils.core.persisted.PersistedValue;
 
 public class Storage<T> extends PersistedValue<T> {
     public Storage(T value) {

@@ -5,13 +5,19 @@
 package com.wynntils.core.persisted;
 
 import com.google.common.base.CaseFormat;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.wynntils.core.WynntilsMod;
 import com.wynntils.core.components.Manager;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.consumers.overlays.Overlay;
 import com.wynntils.core.json.JsonManager;
+import com.wynntils.core.mod.event.WynncraftConnectionEvent;
 import com.wynntils.core.persisted.config.Config;
 import com.wynntils.core.persisted.config.NullableConfig;
+import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.type.Pair;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -20,14 +26,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 public final class PersistedManager extends Manager {
+    private static final long SAVE_INTERVAL = 10_000;
+
+    private static final File STORAGE_DIR = WynntilsMod.getModStorageDir("persisted");
+    private static final String FILE_SUFFIX = ".data.json";
+    private final File userPersistedFile;
+
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     private final Map<PersistedValue<?>, PersistedMetadata<?>> metadatas = new HashMap<>();
     private final Set<PersistedValue<?>> persisteds = new TreeSet<>();
 
+    private long lastPersisted;
+    private boolean scheduledPersist;
+
+    private boolean persistedInitialized = false;
+
     public PersistedManager(JsonManager jsonManager) {
         super(List.of(jsonManager));
+        userPersistedFile = new File(STORAGE_DIR, McUtils.mc().getUser().getUuid() + FILE_SUFFIX);
     }
 
     public void setRaw(PersistedValue<?> persisted, Object value) {
@@ -119,5 +142,71 @@ public final class PersistedManager extends Manager {
 
         String name = overlay.getDeclaringClassName();
         return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name) + ".";
+    }
+
+    /// ============================================================================================
+
+    public void initFeatures() {
+        readFromJson();
+
+        persistedInitialized = true;
+
+        // We might have missed a persist call in between feature init and persisted manager init
+        persist();
+    }
+
+    @SubscribeEvent
+    public void onWynncraftDisconnect(WynncraftConnectionEvent.Disconnected event) {
+        // Always save when disconnecting
+        writeToJson();
+    }
+
+    void persist() {
+        // We cannot persist before the persisted is initialized, or we will overwrite our persisted
+        if (!persistedInitialized || scheduledPersist) return;
+
+        long now = System.currentTimeMillis();
+        long delay = Math.max((lastPersisted + SAVE_INTERVAL) - now, 0);
+
+        executor.schedule(
+                () -> {
+                    scheduledPersist = false;
+                    lastPersisted = System.currentTimeMillis();
+                    writeToJson();
+                },
+                delay,
+                TimeUnit.MILLISECONDS);
+        scheduledPersist = true;
+    }
+
+    private void readFromJson() {
+        JsonObject persistedJson = Managers.Json.loadPreciousJson(userPersistedFile);
+        metadatas.forEach((persisted, metadata) -> {
+            String jsonName = metadata.getJsonName();
+            if (!persistedJson.has(jsonName)) return;
+
+            // read value and update option
+            JsonElement jsonElem = persistedJson.get(jsonName);
+            Type valueType = metadata.getValueType();
+            Object value = Managers.Json.GSON.fromJson(jsonElem, valueType);
+            setRaw(persisted, value);
+
+            PersistedOwner owner = metadata.getOwner();
+            // FIXME
+            // owner.onPersistedLoad();
+        });
+    }
+
+    private void writeToJson() {
+        JsonObject persistedJson = new JsonObject();
+
+        metadatas.forEach((persisted, metadata) -> {
+            String jsonName = metadata.getJsonName();
+            Type valueType = metadata.getValueType();
+            JsonElement jsonElem = Managers.Json.GSON.toJsonTree(persisted.get(), valueType);
+            persistedJson.add(jsonName, jsonElem);
+        });
+
+        Managers.Json.savePreciousJson(userPersistedFile, persistedJson);
     }
 }

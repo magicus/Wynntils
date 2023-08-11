@@ -11,4 +11,6 @@ public interface PersistedOwner {
         String name = this.getClass().getSimpleName();
         return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, name);
     }
+
+    // default void onPersistedLoad() {}
 }

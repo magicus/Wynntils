@@ -74,7 +74,7 @@ public final class StorageManager extends Manager {
 
     private void processStorage(Storageable owner, Field field, Persisted annotation) {
         try {
-            String baseName = owner.getStorageJsonName();
+            String baseName = owner.getJsonName();
             Storage<?> storage = (Storage<?>) FieldUtils.readField(field, owner, true);
             String jsonName = baseName + "." + field.getName();
             storages.put(jsonName, storage);
@@ -118,7 +118,7 @@ public final class StorageManager extends Manager {
 
             // read value and update option
             JsonElement jsonElem = storageJson.get(jsonName);
-            Object value = Managers.Json.GSON.fromJson(jsonElem, storageTypes.get(storage));
+            Object value = Managers.Json.GSON.fromJson(jsonElem, getType(storage));
             Managers.Persisted.setRaw(storage, value);
 
             Storageable owner = storageOwner.get(storage);
@@ -126,11 +126,15 @@ public final class StorageManager extends Manager {
         });
     }
 
+    public Type getType(Storage<?> storage) {
+        return storageTypes.get(storage);
+    }
+
     private void writeToJson() {
         JsonObject storageJson = new JsonObject();
 
         storages.forEach((jsonName, storage) -> {
-            JsonElement jsonElem = Managers.Json.GSON.toJsonTree(storage.get(), storageTypes.get(storage));
+            JsonElement jsonElem = Managers.Json.GSON.toJsonTree(storage.get(), getType(storage));
             storageJson.add(jsonName, jsonElem);
         });
 

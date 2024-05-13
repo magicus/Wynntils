@@ -111,7 +111,7 @@ public class WaypointsProvider extends BuiltInProvider {
 
         @Override
         public Location getLocation() {
-            return location;
+            return location.offset(-15, 0, -15);
         }
     }
 
@@ -148,7 +148,7 @@ public class WaypointsProvider extends BuiltInProvider {
 
         @Override
         public Location getLocation() {
-            return location;
+            return location.offset(-15, 0, -15);
         }
     }
 }

@@ -72,7 +72,7 @@ public class CombatListProvider extends BuiltInProvider {
 
         @Override
         public Location getLocation() {
-            return location;
+            return location.offset(15, 0, 15);
         }
     }
 }

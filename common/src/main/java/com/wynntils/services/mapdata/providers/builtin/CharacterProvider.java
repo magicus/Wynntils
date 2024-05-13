@@ -91,7 +91,7 @@ public class CharacterProvider extends BuiltInProvider {
 
         @Override
         public Location getLocation() {
-            return new Location(McUtils.player().blockPosition());
+            return new Location(McUtils.player().blockPosition().offset(-15, 0, -15));
         }
     }
 }

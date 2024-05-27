@@ -2,6 +2,17 @@
   "categories": [
     {
       "attributes": {
+        "labelColor": "#0000ff",
+        "labelVisibility": {
+          "min": 50,
+          "fade": 30
+        }
+      },
+      "id": "wynntils:service:identifier",
+      "name": "magicus LOCAL identifier override"
+    },
+    {
+      "attributes": {
         "icon": "magicus:icons:online:spot",
         "iconColor": "#ffffff",
         "iconVisibility": {

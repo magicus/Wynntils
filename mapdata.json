@@ -4,8 +4,8 @@
       "attributes": {
         "labelColor": "#0000ff",
         "labelVisibility": {
-          "min": 50,
-          "fade": 30
+          "min": 20,
+          "max": 70
         }
       },
       "id": "wynntils:service:identifier",

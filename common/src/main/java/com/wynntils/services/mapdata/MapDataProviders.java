@@ -34,7 +34,7 @@ public class MapDataProviders {
     public MapDataProviders() {
         createBuiltInProviders();
 
-        createLocalProvider("local-1", "mapdata.json");
+        createLocalProvider("local-1", "../../mapdata.json");
         createOnlineProvider(
                 "online-1",
                 "https://gist.githubusercontent.com/magicus/a2c810380a34a7474a2651400d36d72c/raw/online-mapdata.json");

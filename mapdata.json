@@ -1,0 +1,101 @@
+{
+  "categories": [
+    {
+      "attributes": {
+        "icon": "magicus:icons:online:spot",
+        "iconColor": "#ffffff",
+        "iconVisibility": {
+          "max": 80,
+          "min": 5,
+          "fade": 3
+        },
+        "label": "LOCAL Demo",
+        "level": 17,
+        "labelColor": "#ffffff",
+        "labelShadow": "outline",
+        "labelVisibility": {
+          "max": 60,
+          "min": 30,
+          "fade": 10
+        },
+        "priority": 500
+      },
+      "id": "magicus:demo:online",
+      "name": "magicus demo of LOCAL json"
+    }
+  ],
+  "features": [
+    {
+      "category": "magicus:demo:online",
+      "id": "loot-chest-1",
+      "location": {
+        "x": -557,
+        "y": 36,
+        "z": -1705
+      }
+    },
+    {
+      "attributes": {
+        "iconColor": "#ff00ff",
+        "label": "Loot Chest #2 overridden purple LOCAL",
+        "labelColor": "#ff00ff"
+      },
+      "category": "magicus:demo:online",
+      "id": "loot-chest-2",
+      "location": {
+        "x": -588,
+        "y": 55,
+        "z": -1361
+      }
+    },
+    {
+      "attributes": {
+        "iconColor": "#ff0000",
+        "label": "Player Added #1 overridden red, shorter category",
+        "labelColor": "#ff0000"
+      },
+      "category": "magicus:demo",
+      "id": "player-added-1",
+      "location": {
+        "x": 542,
+        "z": -5025
+      }
+    },
+    {
+      "attributes": {
+        "icon": "none",
+        "iconColor": "#0000ff",
+        "label": "No icon, blue",
+        "labelColor": "#0000ff",
+        "priority": 500
+      },
+      "category": "magicus:demo:online",
+      "id": "player-added-2",
+      "location": {
+        "x": 336,
+        "z": -4950
+      }
+    },
+    {
+      "attributes": {
+        "iconColor": "#00ffff",
+        "label": "",
+        "labelColor": "#00ffff",
+        "priority": 500
+      },
+      "category": "magicus:demo:online",
+      "id": "player-added-3-no-label-aqua",
+      "location": {
+        "x": 744,
+        "y": null,
+        "z": -5364
+      }
+    }
+  ],
+  "icons": [
+    {
+      "id": "magicus:icons:online:spot",
+      "texture": "iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE7mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYjBmOGJlOSwgMjAyMS8xMi8wOC0xOToxMToyMiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjIgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMi0xMS0zMFQyMTo1MjoyMC0wNzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMi0xMS0zMFQyMTo1MjoyMC0wNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjItMTEtMzBUMjE6NTI6MjAtMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjZiY2EyZDZjLTZkNGUtMmM0NS1hOTMzLTVmOTNjOWRjMjU0ZSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo2YmNhMmQ2Yy02ZDRlLTJjNDUtYTkzMy01ZjkzYzlkYzI1NGUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo2YmNhMmQ2Yy02ZDRlLTJjNDUtYTkzMy01ZjkzYzlkYzI1NGUiIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjZiY2EyZDZjLTZkNGUtMmM0NS1hOTMzLTVmOTNjOWRjMjU0ZSIgc3RFdnQ6d2hlbj0iMjAyMi0xMS0zMFQyMTo1MjoyMC0wNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjIgKFdpbmRvd3MpIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PlwT4ywAAAD1SURBVCjPY2BAA//RAAM+AFWAgnFqgim+9aTk/+O3tf8//+39/+f/NOyaYIpBCkI8Wf4nhAr893Zg+J+XLPf/6/9+VE0wxfdfVv73smf4v/JS2/9Nt/v/l25y/J++xBis+e7zcpimO3ANV+7l/U+NEv3fuy3rv/vMiP8mba7/a3Z6/PewBSlZirAFpuH//yX/c5Nk/886XP5frcL8v02f7/+J52L/u1gy/P/2fwI2DavBbk5eoA82edbhiv8bb/b9z06Q/v/wdTV2f4BMqi/R/58ULgTGzhYgqTn4Q+r//3lAPPv/x9/d/99+bycuLoiKOGKTBgD+ohCS+jz2vwAAAABJRU5ErkJggg=="
+    }
+  ]
+}

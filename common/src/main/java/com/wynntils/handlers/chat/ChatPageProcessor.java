@@ -15,10 +15,10 @@ import java.util.regex.Pattern;
 import net.minecraft.world.effect.MobEffects;
 
 public final class ChatPageProcessor {
-    // Test in ChatHandler_NPC_CONFIRM_PATTERN
+    // Test in ChatPageProcessor_NPC_CONFIRM_PATTERN
     private static final Pattern NPC_CONFIRM_PATTERN =
             Pattern.compile("^ *§[47]Press §[cf](SNEAK|SHIFT) §[47]to continue$");
-    // Test in ChatHandler_NPC_SELECT_PATTERN
+    // Test in ChatPageProcessor_NPC_SELECT_PATTERN
     private static final Pattern NPC_SELECT_PATTERN =
             Pattern.compile("^ *§[47cf](Select|CLICK) §[47cf]an option (§[47])?to continue$");
     private static final Pattern EMPTY_LINE_PATTERN = Pattern.compile("^\\s*(§r|À+)?\\s*$");

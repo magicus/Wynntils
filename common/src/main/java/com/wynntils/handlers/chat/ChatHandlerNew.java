@@ -21,6 +21,45 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 
+/**
+ * The responsibility of this class is to act as the first gateway for incoming
+ * chat messages from Wynncraft. We need to solve two problems here. First,
+ * Wyncraft will resend the entire chat history with new lines added at the end
+ * at certain situations, most notably when the user is in a NPC dialog. These
+ * are called "pages" in this context. We need to detect these pages, and split
+ * out the actual content, so it can be sent out as a NPC dialogue event.
+ *
+ * A complication is that new chat messages can be sent while the user is in
+ * page mode. We call these "background" messages, and they are are formatted
+ * differently to be gray and tuned-down, which makes the normal regexp
+ * matching fail. They are also sent as pure strings with formatting codes,
+ * instead of Components as normal one-line chats are. This mean things like
+ * hover and onClick information is lost. (There is nothing we can do about
+ * this, it is a Wynncraft limitation.) We send out these chat messages one by
+ * one, as they would have appeared if we were not in a NPC dialog, but we tag
+ * them as BACKGROUND to signal that formatting is different.
+ *
+ * In a normal vanilla setting, the last "screen" that Wynncraft sends out, the
+ * messages are re-colored to have their normal colors restored (hover and
+ * onClick as still missing, though). Currently, we do not handle this, since
+ * it would mean sending out information that already sent chat lines would
+ * need to be updated to a different formatting. This could be done, but
+ * requires extra logic, and most importantly, a way to update already printed
+ * chat lines.
+ *
+ * Second, we need to classify the incoming chat messages according to their
+ * recipient type. The typical use case for this is to separate chat messages
+ * in different tabs. We do this using the regexp patterns in RecipientType,
+ * and we classify the incoming messages according to if they are sent to the
+ * guild, party, global chat, etc. Messages that do not match any of these
+ * categories are called "info" messages, and are typically automated responses
+ * or announcements. Messages that do match any other category, are sent by
+ * other users (what could really be termed "chat"). The one exception is guild
+ * messages, which can also be e.g. WAR announcements. (Unfortunately, there is
+ * no way to distinguish these from chat sent by a build member named "WAR", or
+ * "INFO", or..., so if these need to be separated, it has to happen in a later
+ * stage).
+ */
 public final class ChatHandlerNew extends Handler {
     private final ChatPageDetector pageDetector = new ChatPageDetector();
     private final ChatPageProcessor pageProcessor = new ChatPageProcessor();

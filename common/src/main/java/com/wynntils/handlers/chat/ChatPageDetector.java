@@ -10,7 +10,6 @@ import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.SystemMessageEvent;
 import com.wynntils.utils.ListUtils;
 import com.wynntils.utils.TaskUtils;
-import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.mc.StyledTextUtils;
 import com.wynntils.utils.type.Pair;
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ public final class ChatPageDetector {
         tasksAtNextTick.clear();
     }
 
-    public void handleIncomingChatLine(SystemMessageEvent.ChatReceivedEvent event) {
+    public void handleIncomingChatMessage(SystemMessageEvent.ChatReceivedEvent event) {
         Component message = event.getMessage();
         StyledText styledText = StyledText.fromComponent(message);
 
@@ -280,7 +279,7 @@ public final class ChatPageDetector {
 
         @Override
         public void run() {
-            McUtils.mc().gui.getChat().addMessage(message);
+            Handlers.Chat.sendDelayedChat(message);
         }
     }
 
@@ -293,7 +292,7 @@ public final class ChatPageDetector {
 
         @Override
         public void run() {
-            McUtils.mc().gui.getChat().addMessage(message.getComponent());
+            Handlers.Chat.handleBackgroundLine(message);
         }
     }
 

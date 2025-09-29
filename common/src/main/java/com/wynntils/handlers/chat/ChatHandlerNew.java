@@ -13,6 +13,7 @@ import com.wynntils.handlers.chat.event.ChatMessageEvent;
 import com.wynntils.handlers.chat.type.MessageType;
 import com.wynntils.handlers.chat.type.NpcDialogueType;
 import com.wynntils.handlers.chat.type.RecipientType;
+import com.wynntils.mc.event.MobEffectEvent;
 import com.wynntils.mc.event.SystemMessageEvent;
 import com.wynntils.mc.event.TickEvent;
 import java.util.List;
@@ -21,6 +22,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 
 public final class ChatHandlerNew extends Handler {
     ChatPageDetector pageDetector = new ChatPageDetector();
+    ChatPageProcessor pageProcessor = new ChatPageProcessor();
 
     @SubscribeEvent
     public void onConnectionChange(WynncraftConnectionEvent.Connected event) {
@@ -43,6 +45,23 @@ public final class ChatHandlerNew extends Handler {
         } else {
             handleIncomingChatLine(event);
         }
+    }
+
+    @SubscribeEvent
+    public void onStatusEffectUpdate(MobEffectEvent.Update event) {
+        pageProcessor.onStatusEffectUpdate(event);
+    }
+
+    @SubscribeEvent
+    public void onStatusEffectRemove(MobEffectEvent.Remove event) {
+        pageProcessor.onStatusEffectRemove(event);
+    }
+
+    /**
+     * Callback from ChatPageDetector when a page is found.
+     */
+    protected void handlePage(List<StyledText> pageContent, boolean lastPage) {
+        pageProcessor.handlePage(pageContent, lastPage);
     }
 
     private void handleIncomingChatLine(SystemMessageEvent.ChatReceivedEvent event) {

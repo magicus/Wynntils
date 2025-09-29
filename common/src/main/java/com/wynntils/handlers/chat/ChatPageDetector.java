@@ -5,9 +5,8 @@
 package com.wynntils.handlers.chat;
 
 import com.wynntils.core.WynntilsMod;
-import com.wynntils.core.components.Models;
+import com.wynntils.core.components.Handlers;
 import com.wynntils.core.text.StyledText;
-import com.wynntils.handlers.chat.type.NpcDialogueType;
 import com.wynntils.mc.event.SystemMessageEvent;
 import com.wynntils.utils.ListUtils;
 import com.wynntils.utils.TaskUtils;
@@ -322,13 +321,7 @@ public final class ChatPageDetector {
 
         @Override
         public void run() {
-            if (lastPage) {
-                // Signal that the dialogue is over
-                Models.NpcDialogue.handleDialogue(List.of(), true, NpcDialogueType.NONE);
-            } else {
-                // Do something with this...
-                Models.NpcDialogue.handleDialogue(pageContent, true, NpcDialogueType.NORMAL);
-            }
+            Handlers.Chat.handlePage(pageContent, lastPage);
         }
     }
 }

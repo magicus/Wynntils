@@ -22,13 +22,8 @@ public final class ChatPageProcessor {
     private static final Pattern NPC_SELECT_PATTERN =
             Pattern.compile("^ *§[47cf](Select|CLICK) §[47cf]an option (§[47])?to continue$");
     private static final Pattern EMPTY_LINE_PATTERN = Pattern.compile("^\\s*(§r|À+)?\\s*$");
-    private final ChatPageDetector chatPageDetector;
 
     private boolean isProtected = false;
-
-    public ChatPageProcessor(ChatPageDetector chatPageDetector) {
-        this.chatPageDetector = chatPageDetector;
-    }
 
     public void onStatusEffectUpdate(MobEffectEvent.Update event) {
         if (event.getEntity() != McUtils.player()) return;
@@ -38,10 +33,6 @@ public final class ChatPageProcessor {
                 && event.getEffectDurationTicks() == 32767) {
             isProtected = true;
         }
-    }
-
-    private boolean isInPage() {
-        return chatPageDetector.isInPageMode();
     }
 
     public void onStatusEffectRemove(MobEffectEvent.Remove event) {
